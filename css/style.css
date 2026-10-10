@@ -11,9 +11,9 @@
   --sans:"Helvetica Neue",Helvetica,Arial,"Liberation Sans",sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.65;font-weight:300;-webkit-font-smoothing:antialiased}
-a{color:inherit}
+a{color:inherit;-webkit-tap-highlight-color:transparent}
 ::selection{background:var(--gold);color:var(--bg)}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
@@ -113,21 +113,50 @@ footer.site a:hover{color:var(--gold)}
 footer.site a.logo{display:inline-block}
 
 @media (max-width:860px){
+  body{font-size:17px;line-height:1.6}
   .wrap{padding:0 20px}
+  .mono,label,.out dt{font-size:.8rem;letter-spacing:.16em}
+  .note{font-size:.78rem;line-height:1.6;letter-spacing:.02em}
   .grid.c3,.grid.c2,.calc,footer.site .cols{grid-template-columns:1fr}
-  .calc .in{border-right:0;border-bottom:1px solid var(--rule);padding:28px}
-  .calc .out{padding:28px}
-  .cell{padding:32px 24px}
-  .sec-head{grid-template-columns:1fr;gap:8px}
-  section.block{padding:64px 0}
-  .hero{padding:64px 0 56px}
+  .calc .in,.calc .out{padding:24px 20px}
+  .calc .in{border-right:0;border-bottom:1px solid var(--rule)}
+  .cell{padding:28px 20px}
+  .sec-head{grid-template-columns:1fr;gap:6px;margin-bottom:32px}
+  section.block{padding:56px 0}
+  .hero{padding:48px 0 56px}
+  .hero .mono{margin-bottom:20px}
+  h1{font-size:clamp(2.1rem,10.5vw,3.4rem);line-height:1;hyphens:auto;-webkit-hyphens:auto}
+  h2{font-size:clamp(1.7rem,8vw,2.4rem);hyphens:auto;-webkit-hyphens:auto}
+  h3{font-size:1.3rem}
+  .hero p.lead{font-size:1.1rem;margin-top:28px}
+  /* Buttons: full width, thumb-sized */
+  .cta{display:block;margin:20px 0 0;text-align:center}
+  .hero .cta:first-of-type{margin-top:32px}
+  .btn{display:block;text-align:center;padding:20px 16px;font-size:.82rem;min-height:56px}
+  .cell .btn{margin-top:8px}
+  /* Header */
+  header.site{position:static}
   header.site .wrap{padding:0}
   .logo{padding:14px 20px;width:100%;border-bottom:1px solid var(--rule)}
   nav{width:100%}
-  nav a{flex:1;justify-content:center;padding:14px 4px;border-left:0;border-right:1px solid var(--rule);font-size:.62rem;letter-spacing:.14em}
+  nav a{flex:1;justify-content:center;min-height:52px;padding:0 4px;border-left:0;border-right:1px solid var(--rule);font-size:.76rem;letter-spacing:.12em}
   nav a:last-child{border-right:0}
-  ol.steps li{grid-template-columns:70px 1fr}
-  ol.steps li::before{font-size:1.6rem;padding:24px 10px}
-  ol.steps li div{padding:24px 20px}
-  blockquote{padding-left:20px}
+  /* Steps */
+  ol.steps li{grid-template-columns:64px 1fr}
+  ol.steps li::before{font-size:1.5rem;padding:24px 8px;text-align:center}
+  ol.steps li div{padding:22px 18px}
+  /* Calculator */
+  .numrow input[type=number]{font-size:2.4rem;padding:12px 16px}
+  .numrow button{width:64px;font-size:1.9rem}
+  input[type=range]{height:44px;margin-top:12px}
+  .big{font-size:clamp(2.6rem,13vw,3.6rem)}
+  .out dd{font-size:1.2rem}
+  blockquote{padding-left:18px;font-size:1.5rem}
+  footer.site{padding:48px 0 28px}
+  footer.site a{padding:10px 0}
+  .marquee{padding:14px 0}
+}
+@media (max-width:380px){
+  nav a{font-size:.7rem;letter-spacing:.08em}
+  .wrap{padding:0 16px}
 }
