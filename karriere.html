@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Karriere — F&amp;A Sales Consulting</title>
+<meta name="description" content="[PLATZHALTER: Meta-Beschreibung]">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">F<span>&amp;</span>A</a>
+  <nav aria-label="Hauptnavigation">
+    <a href="index.html">Über uns</a>
+    <a href="karriere.html" aria-current="page">Karriere</a>
+    <a href="coaching.html">Coaching</a>
+  </nav>
+</div></header>
+<main>
+<section class="hero"><div class="wrap">
+  <span class="mono">Karriere / Vertrieb</span>
+  <h1>Verdienen Sie, <em>was Sie leisten.</em></h1>
+  <p class="lead">[PLATZHALTER: Kurzer Einleitungstext zur Karrieremöglichkeit bei F&amp;A Sales Consulting.]</p>
+  <a class="btn cta" href="#rechner">Provision berechnen ↓</a>
+</div></section>
+<section class="block "><div class="wrap">
+  <div class="sec-head"><div class="sec-num">I</div><h2>Die Position</h2></div>
+  <div class="grid c2">
+    <div class="cell"><span class="mono">[PLATZHALTER]</span><h3>[PLATZHALTER: Aufgabe]</h3><p>[PLATZHALTER: Beschreibung der Tätigkeit und des Produkts. Lorem ipsum dolor sit amet, consectetur adipiscing elit.]</p><p>[PLATZHALTER: Beschreibung des Vergütungsmodells.]</p></div>
+    <div class="cell"><span class="mono">Anforderungen</span><ul class="req"><li>[PLATZHALTER: Anforderung]</li><li>[PLATZHALTER: Anforderung]</li><li>[PLATZHALTER: Anforderung]</li><li>[PLATZHALTER: Anforderung]</li></ul></div>
+  </div>
+</div></section>
+<section class="block "><div class="wrap">
+  <div class="sec-head"><div class="sec-num">II</div><h2>Ihr Weg</h2></div>
+  <ol class="steps">
+    <li><div><h3>[PLATZHALTER: Schritt]</h3><p>[PLATZHALTER: Beschreibung.]</p></div></li>
+    <li><div><h3>[PLATZHALTER: Schritt]</h3><p>[PLATZHALTER: Beschreibung.]</p></div></li>
+    <li><div><h3>[PLATZHALTER: Schritt]</h3><p>[PLATZHALTER: Beschreibung.]</p></div></li>
+  </ol>
+</div></section>
+<section class="block" id="rechner"><div class="wrap">
+  <div class="sec-head"><div class="sec-num">III</div><h2>Provisionsrechner</h2></div>
+  <p style="max-width:720px;margin-bottom:48px">[PLATZHALTER: Kontext zum Vergütungsmodell — wie Provisionen entstehen, was ein Abschluss ist, wie Stornohaftung funktioniert. Bitte alle Werte im Rechner vor Veröffentlichung verifizieren.]</p>
+  <form class="calc" id="calc" onsubmit="return false">
+    <div class="in">
+      <div class="field">
+        <label for="abschluesse">Abschlüsse pro Monat</label>
+        <div class="numrow">
+          <button type="button" id="minus" aria-label="Weniger">−</button>
+          <input type="number" id="abschluesse" min="0" max="100" step="1" value="10" inputmode="numeric">
+          <button type="button" id="plus" aria-label="Mehr">+</button>
+        </div>
+        <input type="range" id="slider" min="0" max="100" step="1" value="10" aria-label="Abschlüsse pro Monat (Regler)">
+      </div>
+      <p class="mono" id="annahmen">Annahmen: …</p>
+    </div>
+    <div class="out" aria-live="polite">
+      <span class="mono">Geschätzte Provision / Monat</span>
+      <div class="big" id="monat">0 €</div>
+      <dl>
+        <div><dt>Pro Jahr</dt><dd id="jahr">0 €</dd></div>
+        <div><dt>Ø pro Abschluss</dt><dd id="proAbschluss">0 €</dd></div>
+        <div><dt>Abzgl. Storno-Reserve</dt><dd id="storno">0 €</dd></div>
+      </dl>
+      <p class="note">[PLATZHALTER: Haftungsausschluss] Unverbindliche Beispielrechnung. Keine Garantie auf Einkommen. Tatsächliche Provisionen können abweichen.</p>
+    </div>
+  </form>
+  <a class="btn cta" href="#bewerben" style="margin-top:56px">Jetzt bewerben →</a>
+</div></section>
+<section class="block "><div class="wrap">
+  <div class="sec-head"><div class="sec-num">IV</div><h2>Bewerbung</h2></div>
+  <div class="grid c2" id="bewerben">
+    <div class="cell"><span class="mono">Kontakt</span><h3>[PLATZHALTER: Aufruf zur Bewerbung]</h3><p>[PLATZHALTER: Beschreibung des Bewerbungsprozesses.]</p></div>
+    <div class="cell dark"><span class="mono">Direkt</span><a class="btn" href="mailto:platzhalter@example.de" style="box-shadow:8px 8px 0 var(--accent);background:var(--paper);color:var(--ink);border-color:var(--paper)">[PLATZHALTER: E-Mail]</a></div>
+  </div>
+</div></section>
+</main>
+<footer class="site"><div class="wrap">
+  <div class="cols">
+    <div><a class="logo" href="index.html">F<span>&amp;</span>A</a><p class="mono" style="margin-top:12px">Sales Consulting — [PLATZHALTER: Claim]</p></div>
+    <div><p class="mono">Seiten</p><a href="index.html">Über uns</a><a href="karriere.html">Karriere</a><a href="coaching.html">Coaching</a></div>
+    <div><p class="mono">Kontakt</p><a href="mailto:platzhalter@example.de">[PLATZHALTER: E-Mail]</a><a href="#">[PLATZHALTER: Telefon]</a><a href="#">Impressum</a><a href="#">Datenschutz</a></div>
+  </div>
+  <p class="mono">© [JAHR] F&amp;A Sales Consulting — [PLATZHALTER: Firmenanschrift]</p>
+</div></footer>
+<script src="js/rechner.js"></script></body></html>
