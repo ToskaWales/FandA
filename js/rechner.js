@@ -3,7 +3,6 @@ const CONFIG = {
   dealgroesse: 2500000,     // € Ø Dealgröße
   provisionssatz: 0.05,     // 5 % Setter-Provision
   maxAbschluesseProMonat: 10,
-  millionSchwelle: 1000000, // siebenstelliges Jahreseinkommen
 };
 
 const $ = (id) => document.getElementById(id);
@@ -22,11 +21,6 @@ function render(n) {
   $('monat').textContent = eur.format(monat);
   $('proJahr').textContent = n * 12;
   $('proAbschluss').textContent = eur.format(provisionJeDeal);
-  const anteil = Math.min(1, jahr / CONFIG.millionSchwelle);
-  $('meter').style.width = anteil * 100 + '%';
-  $('millionStatus').textContent = jahr >= CONFIG.millionSchwelle
-    ? 'Siebenstelliges Jahreseinkommen erreicht'
-    : `Weg zur Million: ${Math.round(anteil * 100)} %`;
 }
 
 function set(v) {
