@@ -29,3 +29,6 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 - **Open-Graph-Bild** `assets/og.png` (1200×630) und Icons (`assets/icon-*.png`, `favicon.ico`) sind aus Logo/Art abgeleitet; `manifest.webmanifest` verweist darauf.
 - **Strukturierte Daten** (JSON-LD): Organisation auf der Startseite, FAQ auf Karriere und Coaching (werden aus den sichtbaren FAQ-Texten erzeugt — bei Textänderungen mitpflegen).
 - Bewegung: Zeilen-Reveal der Überschriften, Hero-Rotation beim Scrollen, Prozess-Bühne, Odometer im Rechner, sanfte Seitenübergänge (View Transitions). Alles respektiert „reduzierte Bewegung“.
+
+## Logo
+Das Logo (Seal mit Guilloché-Ring, Monogramm „F & A“ in Bodoni, „Sales Consulting“) liegt als SVG vor (`assets/logo.svg`, Buchstaben als Pfade) sowie als Kurzform `assets/logo-mark.svg` (goldenes „&“ im Ring) für Favicon/App-Icon. Neu erzeugen: `pip install fonttools brotli && python3 tools/logo.py`. PNG-Varianten (`logo-512.png`, `icon-*.png`, `apple-touch-icon.png`, `favicon.ico`) und `og.png` sind daraus abgeleitet.

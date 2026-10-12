@@ -3,7 +3,7 @@
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const root = document.documentElement;
-  const targets = document.querySelectorAll('.rv, .lines');
+  const targets = document.querySelectorAll('.rv, .lines, section.s');
 
   if (!('IntersectionObserver' in window) || reduce) {
     targets.forEach((el) => el.classList.add('in'));
@@ -63,5 +63,31 @@
     const upd = () => sticky.classList.toggle('show', pastHero && !atForm);
     new IntersectionObserver(([e]) => { pastHero = !e.isIntersecting; upd(); }).observe(document.querySelector('.hero'));
     if (form) new IntersectionObserver(([e]) => { atForm = e.isIntersecting; upd(); }, { threshold: 0.1 }).observe(form);
+  }
+
+  // Nur mit Maus: Hero-Spotlight folgt dem Zeiger, Cursor-Ring, magnetische Buttons
+  if (!reduce && matchMedia('(pointer:fine)').matches) {
+    const hero = document.querySelector('.hero');
+    if (hero) hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      hero.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      hero.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+    const ring = document.querySelector('.cursor');
+    if (ring) {
+      let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
+      addEventListener('pointermove', (e) => { tx = e.clientX; ty = e.clientY; ring.classList.add('on'); });
+      document.addEventListener('pointerleave', () => ring.classList.remove('on'));
+      const loop = () => { x += (tx - x) * 0.18; y += (ty - y) * 0.18; ring.style.transform = `translate(${x}px,${y}px)`; requestAnimationFrame(loop); };
+      loop();
+      document.addEventListener('pointerover', (e) => ring.classList.toggle('big', !!e.target.closest('a, button, summary, label, input, select, textarea')));
+    }
+    document.querySelectorAll('.btn').forEach((b) => {
+      b.addEventListener('pointermove', (e) => {
+        const r = b.getBoundingClientRect();
+        b.style.transform = `translate(${((e.clientX - r.left) / r.width - 0.5) * 8}px, ${((e.clientY - r.top) / r.height - 0.5) * 6}px)`;
+      });
+      b.addEventListener('pointerleave', () => { b.style.transform = ''; });
+    });
   }
 })();
