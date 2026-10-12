@@ -5,9 +5,8 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 ## Seiten
 | Datei | Inhalt |
 |---|---|
-| `index.html` | Unternehmen: Terminsetting für bAV-Vermittler, Prozess, Team, Anfrageformular |
+| `index.html` | Unternehmen: Terminsetting für bAV-Vermittler, Ablauf, Rollen, Anfrageformular |
 | `karriere.html` | Setter-Karriere: Angebot, Karriereweg, Provisionsrechner, FAQ, Bewerbung |
-| `coaching.html` | Coaching: Methode, Bausteine, FAQ |
 | `impressum.html`, `datenschutz.html` | **Platzhalter — müssen rechtlich geprüft und gefüllt werden** (`noindex`, solange sie leer sind) |
 
 ## Vor dem Livegang ausfüllen
@@ -27,7 +26,7 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 ## Gestaltung & Assets
 - **Guilloché-Ornamente** (`assets/art/*.svg`) sind generiert — Skript: `python3 tools/art.py`. Sie werden per CSS-Maske eingefärbt (`.art`), Farbe über `color`.
 - **Open-Graph-Bild** `assets/og.png` (1200×630) und Icons (`assets/icon-*.png`, `favicon.ico`) sind aus Logo/Art abgeleitet; `manifest.webmanifest` verweist darauf.
-- **Strukturierte Daten** (JSON-LD): Organisation auf der Startseite, FAQ auf Karriere und Coaching (werden aus den sichtbaren FAQ-Texten erzeugt — bei Textänderungen mitpflegen).
+- **Strukturierte Daten** (JSON-LD): Organisation auf der Startseite, FAQ auf der Karriere-Seite (werden aus den sichtbaren FAQ-Texten erzeugt — bei Textänderungen mitpflegen).
 - Bewegung: Zeilen-Reveal der Überschriften, Hero-Rotation beim Scrollen, Prozess-Bühne, Odometer im Rechner, sanfte Seitenübergänge (View Transitions). Alles respektiert „reduzierte Bewegung“.
 
 ## Logo
