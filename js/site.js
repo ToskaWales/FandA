@@ -20,6 +20,10 @@
 
   // Scroll-Fortschritt + Hero-Rotation (ein rAF-Loop, nur bei Bewegung)
   const heroArt = document.querySelector('.hero-art');
+  const fine = matchMedia('(pointer:fine)').matches;
+  const sticky = document.getElementById('sticky');
+  const formEl = document.getElementById('bewerbung') || document.getElementById('anfrage');
+  let atForm = false;
   let ticking = false;
   const onScroll = () => {
     if (ticking) return;
@@ -27,7 +31,8 @@
     requestAnimationFrame(() => {
       const max = root.scrollHeight - innerHeight;
       root.style.setProperty('--p', max > 0 ? (scrollY / max).toFixed(4) : 0);
-      if (heroArt && !reduce) heroArt.style.setProperty('--rot', (scrollY * 0.04).toFixed(2) + 'deg');
+      if (heroArt && !reduce && fine) heroArt.style.setProperty('--rot', (scrollY * 0.04).toFixed(2) + 'deg');
+      if (sticky) sticky.classList.toggle('show', scrollY > 260 && !atForm);
       ticking = false;
     });
   };
@@ -55,14 +60,27 @@
     steps.forEach((s) => spy.observe(s));
   }
 
-  // Mobiler CTA: erst nach dem Hero einblenden, am Formular ausblenden
-  const sticky = document.getElementById('sticky');
-  const form = document.getElementById('bewerbung');
-  if (sticky && 'IntersectionObserver' in window) {
-    let pastHero = false, atForm = false;
-    const upd = () => sticky.classList.toggle('show', pastHero && !atForm);
-    new IntersectionObserver(([e]) => { pastHero = !e.isIntersecting; upd(); }).observe(document.querySelector('.hero'));
-    if (form) new IntersectionObserver(([e]) => { atForm = e.isIntersecting; upd(); }, { threshold: 0.1 }).observe(form);
+  // Daumenzone-CTA: am Formular ausblenden
+  if (sticky && formEl && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { atForm = e.isIntersecting; onScroll(); }, { threshold: 0.1 }).observe(formEl);
+  }
+
+  // Mobiles Vollbild-Menü
+  const btn = document.getElementById('menuBtn'), menu = document.getElementById('menu'), close = document.getElementById('menuClose');
+  if (btn && menu) {
+    const inert = [document.getElementById('main'), document.querySelector('footer.site'), sticky].filter(Boolean);
+    const setOpen = (open) => {
+      menu.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+      inert.forEach((el) => open ? el.setAttribute('inert', '') : el.removeAttribute('inert'));
+      if (open) setTimeout(() => menu.querySelector('nav a')?.focus(), 60); else btn.focus();
+    };
+    btn.addEventListener('click', () => setOpen(true));
+    close.addEventListener('click', () => setOpen(false));
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && menu.classList.contains('open')) setOpen(false); });
+    matchMedia('(min-width:760px)').addEventListener('change', (m) => { if (m.matches) setOpen(false); });
   }
 
   // Nur mit Maus: Hero-Spotlight folgt dem Zeiger, Cursor-Ring, magnetische Buttons
