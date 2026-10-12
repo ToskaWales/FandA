@@ -1,26 +1,31 @@
 // Provisionsrechner für Setter: Provision = Abschlüsse × Ø Dealgröße × Provisionssatz.
 const CONFIG = {
-  dealgroesse: 2500000,     // € Ø Dealgröße
-  provisionssatz: 0.05,     // 5 % Setter-Provision
-  maxAbschluesseProMonat: 10,
+  dealgroesse: 2500000,   // € Ø Dealgröße
+  provisionssatz: 0.05,   // 5 % Setter-Provision
+  maxAbschluesse: 24,     // Obergrenze pro Jahr im Rechner
+  millionSchwelle: 1000000,
 };
 
 const $ = (id) => document.getElementById(id);
 const eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 const input = $('abschluesse'), slider = $('slider');
 const provisionJeDeal = CONFIG.dealgroesse * CONFIG.provisionssatz;
+const abschlussFuerMillion = Math.ceil(CONFIG.millionSchwelle / provisionJeDeal);
 
 function clamp(v) {
   v = Math.round(Number(v));
-  return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesseProMonat, Math.max(0, v)) : 0;
+  return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesse, Math.max(0, v)) : 0;
 }
 
 function render(n) {
-  const monat = n * provisionJeDeal, jahr = monat * 12;
+  const jahr = n * provisionJeDeal;
   $('jahr').textContent = eur.format(jahr);
-  $('monat').textContent = eur.format(monat);
-  $('proJahr').textContent = n * 12;
+  $('monat').textContent = eur.format(jahr / 12);
+  $('volumen').textContent = eur.format(n * CONFIG.dealgroesse);
   $('proAbschluss').textContent = eur.format(provisionJeDeal);
+  $('hinweis').textContent = n >= abschlussFuerMillion
+    ? 'Bei dieser Rechnung läge die Provision im siebenstelligen Bereich.'
+    : `Rechnerisch ab ${abschlussFuerMillion} Abschlüssen pro Jahr siebenstellig.`;
 }
 
 function set(v) {
@@ -30,9 +35,9 @@ function set(v) {
 }
 
 $('annahmen').textContent =
-  `Basis: Ø Dealgröße ${eur.format(CONFIG.dealgroesse)} · Provision ${Math.round(CONFIG.provisionssatz * 100)} % = ${eur.format(provisionJeDeal)} je Abschluss`;
-$('maxlabel').textContent = CONFIG.maxAbschluesseProMonat;
-input.max = slider.max = CONFIG.maxAbschluesseProMonat;
+  `Basis: Ø Dealgröße ${eur.format(CONFIG.dealgroesse)} × ${Math.round(CONFIG.provisionssatz * 100)} % Provision = ${eur.format(provisionJeDeal)} je Abschluss.`;
+$('maxlabel').textContent = CONFIG.maxAbschluesse;
+input.max = slider.max = CONFIG.maxAbschluesse;
 input.addEventListener('input', () => { if (input.value !== '') set(input.value); });
 input.addEventListener('blur', () => set(input.value));
 slider.addEventListener('input', () => set(slider.value));
