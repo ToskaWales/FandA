@@ -31,4 +31,4 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 - Bewegung: Zeilen-Reveal der Überschriften, Hero-Rotation beim Scrollen, Prozess-Bühne, Odometer im Rechner, sanfte Seitenübergänge (View Transitions). Alles respektiert „reduzierte Bewegung“.
 
 ## Logo
-Das Logo (Seal mit Guilloché-Ring, Monogramm „F & A“ in Bodoni, „Sales Consulting“) liegt als SVG vor (`assets/logo.svg`, Buchstaben als Pfade) sowie als Kurzform `assets/logo-mark.svg` (goldenes „&“ im Ring) für Favicon/App-Icon. Neu erzeugen: `pip install fonttools brotli && python3 tools/logo.py`. PNG-Varianten (`logo-512.png`, `icon-*.png`, `apple-touch-icon.png`, `favicon.ico`) und `og.png` sind daraus abgeleitet.
+Das Logo (Seal mit Guilloché-Ring, Monogramm „F & A“ in Newsreader, „Sales Consulting“) liegt als SVG vor (`assets/logo.svg`, Buchstaben als Pfade) sowie als Kurzform `assets/logo-mark.svg` (goldenes „&“ im Ring) für Favicon/App-Icon. Neu erzeugen: `pip install fonttools brotli && python3 tools/logo.py`. PNG-Varianten (`logo-512.png`, `icon-*.png`, `apple-touch-icon.png`, `favicon.ico`) und `og.png` sind daraus abgeleitet.
