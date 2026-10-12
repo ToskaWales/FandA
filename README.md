@@ -23,3 +23,9 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 - Animationen respektieren „reduzierte Bewegung“.
 - Design-Tokens (Farben, Schriften) stehen am Anfang von `css/style.css`.
 - Veröffentlichung über GitHub Pages aus dem Standard-Branch; `sitemap.xml`/`robots.txt`/Open-Graph-URLs verweisen auf `toskawales.github.io/FandA` und bei eigener Domain anpassen.
+
+## Gestaltung & Assets
+- **Guilloché-Ornamente** (`assets/art/*.svg`) sind generiert — Skript: `python3 tools/art.py`. Sie werden per CSS-Maske eingefärbt (`.art`), Farbe über `color`.
+- **Open-Graph-Bild** `assets/og.png` (1200×630) und Icons (`assets/icon-*.png`, `favicon.ico`) sind aus Logo/Art abgeleitet; `manifest.webmanifest` verweist darauf.
+- **Strukturierte Daten** (JSON-LD): Organisation auf der Startseite, FAQ auf Karriere und Coaching (werden aus den sichtbaren FAQ-Texten erzeugt — bei Textänderungen mitpflegen).
+- Bewegung: Zeilen-Reveal der Überschriften, Hero-Rotation beim Scrollen, Prozess-Bühne, Odometer im Rechner, sanfte Seitenübergänge (View Transitions). Alles respektiert „reduzierte Bewegung“.

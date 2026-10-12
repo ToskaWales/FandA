@@ -13,25 +13,33 @@ const quick = [...document.querySelectorAll('.quick button')];
 const provisionJeDeal = CONFIG.dealgroesse * CONFIG.provisionssatz;
 const abschlussFuerMillion = Math.ceil(CONFIG.millionSchwelle / provisionJeDeal);
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let shown = 0, raf;
 
 function clamp(v) {
   v = Math.round(Number(v));
   return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesse, Math.max(0, v)) : 0;
 }
 
-function tween(to) {
-  cancelAnimationFrame(raf);
-  if (reduce) { shown = to; $('jahr').textContent = eur.format(to); return; }
-  const from = shown, t0 = performance.now(), dur = 450;
-  const tick = (t) => {
-    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
-    shown = from + (to - from) * e;
-    $('jahr').textContent = eur.format(shown);
-    if (p < 1) raf = requestAnimationFrame(tick);
-  };
-  raf = requestAnimationFrame(tick);
+// Odometer: jede Ziffer rollt als Streifen 0–9 an ihre Position
+const odo = $('jahr');
+function odoSet(text) {
+  odo.setAttribute('aria-label', text);
+  const chars = [...text];
+  const sig = chars.map((c) => (/\d/.test(c) ? 'd' : c)).join('');
+  if (odo.dataset.sig !== sig) {          // Struktur ändert sich (z. B. 6 → 7 Stellen): neu aufbauen
+    odo.dataset.sig = sig;
+    odo.innerHTML = chars.map((c) => {
+      if (/\d/.test(c)) return `<span class="c dg" aria-hidden="true"><span class="strip">${[0,1,2,3,4,5,6,7,8,9].map((d) => `<span>${d}</span>`).join('')}</span></span>`;
+      if (c === '€') return '<span class="c cur" aria-hidden="true">€</span>';
+      return `<span class="c sep" aria-hidden="true">${c === ' ' || c === '\u00a0' ? '&nbsp;' : c}</span>`;
+    }).join('');
+  }
+  let k = 0;
+  odo.querySelectorAll('.strip').forEach((st) => {
+    const d = +chars.filter((c) => /\d/.test(c))[k++];
+    st.style.transform = `translateY(${-d * 1.12}em)`;
+  });
 }
+function tween(to) { odoSet(eur.format(to)); }
 
 function render(n) {
   const jahr = n * provisionJeDeal;

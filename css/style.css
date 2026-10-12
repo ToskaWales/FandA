@@ -291,3 +291,89 @@ footer.site .small{font-size:.82rem;border-top:1px solid var(--rule-dk);padding-
 
 .calc .in .lbl{color:var(--muted)}
 .calc .in{color:var(--text)}
+
+/* =====================================================================
+   Veredelung: Guilloché-Kunst, Zeilen-Reveal, Prozess-Bühne, Odometer
+   ===================================================================== */
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.4s;animation-timing-function:var(--ease)}
+
+/* Guilloché (als Maske → Farbe per color steuerbar) */
+.art{aspect-ratio:1;background:currentColor;-webkit-mask:var(--src) center/contain no-repeat;mask:var(--src) center/contain no-repeat;pointer-events:none}
+.art.hero-art{--src:url(../assets/art/hero.svg)}
+.art.a1{--src:url(../assets/art/a1.svg)}
+.art.a2{--src:url(../assets/art/a2.svg)}
+.art.a3{--src:url(../assets/art/a3.svg)}
+.art.a4{--src:url(../assets/art/a4.svg)}
+.art.band{--src:url(../assets/art/band.svg)}
+.art.ft{--src:url(../assets/art/a2.svg)}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;isolation:isolate}
+.hero>.wrap{position:relative;z-index:1}
+.hero-art{position:absolute;z-index:0;color:var(--gold);opacity:.5;width:132vw;right:-62vw;top:-22vw;transform:rotate(var(--rot,0deg));will-change:transform}
+
+/* Zeilen-Reveal für H1 */
+.lines .ln{display:block;overflow:hidden;padding:.08em .06em .14em;margin:-.08em -.06em -.14em}
+.lines .ln>span{display:block}
+.js .lines .ln>span{transform:translateY(112%);transition:transform 1.1s var(--ease);transition-delay:calc(var(--i,0)*.12s + .1s)}
+.js .lines.in .ln>span{transform:none}
+
+/* Scroll-Fortschritt */
+header.site{position:sticky}
+.progress{position:absolute;left:0;right:0;bottom:-1px;height:2px;pointer-events:none}
+.progress i{display:block;height:100%;background:var(--gold);transform:scaleX(var(--p,0));transform-origin:0 50%}
+
+/* Prozess-Bühne (Sticky-Split) */
+.proc-art{display:none}
+.proc-steps{margin-top:48px}
+@media (min-width:1000px){
+  .proc-grid{display:grid;grid-template-columns:5fr 6fr;gap:96px;align-items:start}
+  .proc-art{display:block;position:sticky;top:96px;height:calc(100vh - 140px);min-height:480px;color:var(--gold-lt)}
+  .proc-art .art{position:absolute;left:50%;top:50%;width:min(100%,540px);opacity:0;transform:translate(-50%,-50%) rotate(-25deg) scale(.92);transition:opacity 1s var(--ease),transform 1.6s var(--ease)}
+  .proc-art .art.on{opacity:.8;transform:translate(-50%,-50%) rotate(0deg) scale(1)}
+  .proc-num{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(5rem,9vw,9rem);line-height:1;color:#f4f0e6;letter-spacing:-.02em;transition:opacity .35s}
+  .proc-num.swap{opacity:0}
+  .proc-steps>li{min-height:44vh;align-content:center;opacity:.32;transition:opacity .6s var(--ease)}
+  .proc-steps>li.on{opacity:1}
+  .proc-steps>li{grid-template-columns:1fr;gap:10px}
+  .proc-steps>li::before{font-size:1.3rem}
+  .proc-steps h3{font-size:2.3rem}
+}
+
+/* Leitsatz */
+.statement{position:relative;overflow:hidden;padding:110px 0;isolation:isolate}
+.statement .art{position:absolute;z-index:-1;color:var(--gold);opacity:.4;width:min(130vw,880px);right:-18vw;top:50%;transform:translateY(-50%)}
+.stmt{font-family:var(--display);font-weight:500;font-size:clamp(3rem,13vw,9.5rem);line-height:.94;letter-spacing:-.03em;color:var(--ink);font-variation-settings:"opsz" 34;font-optical-sizing:none}
+.stmt em{font-weight:400}
+@media (min-width:760px){.statement{padding:170px 0}}
+
+/* Footer-Kunst */
+footer.site{position:relative;overflow:hidden;isolation:isolate}
+footer.site .art.ft{position:absolute;z-index:-1;color:var(--gold-lt);opacity:.12;width:min(110vw,720px);right:-20vw;bottom:-30%}
+
+/* Odometer */
+.res .big{display:flex;align-items:center}
+.odo{display:inline-flex;align-items:flex-start;height:1.12em;line-height:1.12;overflow:hidden;white-space:pre}
+.odo .c{display:inline-block;height:1.12em;overflow:hidden;text-align:center}
+.odo .c.dg{width:.6em}
+.odo .c.sep{width:.28em}
+.odo .c.cur{width:.72em;margin-left:.04em}
+.odo .strip{display:flex;flex-direction:column;transition:transform .9s var(--ease)}
+.odo .strip>span{display:block;height:1.12em;line-height:1.12}
+
+/* Zeilen: feine Hover-Linie */
+.rows>li,.list li{position:relative}
+@media (hover:hover){.rows:not(.proc-steps)>li:hover h3{transform:translateX(6px)}}
+.rows h3{transition:transform .4s var(--ease)}
+
+/* Hero Mobile: Text bleibt führend */
+@media (min-width:760px){
+  .hero-art{width:min(58vw,820px);right:-16vw;top:-13vw;opacity:.55}
+}
+@media (prefers-reduced-motion:reduce){
+  .js .lines .ln>span{transform:none}
+  .proc-art .art{transition:none}
+}
+.stepper input{font-variation-settings:"opsz" 14}
+.stmt{font-variation-settings:"opsz" 22}
