@@ -9,18 +9,16 @@ const CONFIG = {
 const $ = (id) => document.getElementById(id);
 const eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 const input = $('abschluesse'), slider = $('slider');
+const quick = [...document.querySelectorAll('.quick button')];
 const provisionJeDeal = CONFIG.dealgroesse * CONFIG.provisionssatz;
 const abschlussFuerMillion = Math.ceil(CONFIG.millionSchwelle / provisionJeDeal);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let shown = 0, raf;
 
 function clamp(v) {
   v = Math.round(Number(v));
   return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesse, Math.max(0, v)) : 0;
 }
-
-const bars = [...document.querySelectorAll('#bars i')];
-const chips = [...document.querySelectorAll('.chip')];
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let shown = 0, raf;
 
 function tween(to) {
   cancelAnimationFrame(raf);
@@ -38,8 +36,7 @@ function tween(to) {
 function render(n) {
   const jahr = n * provisionJeDeal;
   tween(jahr);
-  bars.forEach((b, i) => b.classList.toggle('on', i < n));
-  chips.forEach((c) => c.setAttribute('aria-pressed', String(+c.dataset.v === n)));
+  quick.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v === n)));
   $('monat').textContent = eur.format(jahr / 12);
   $('volumen').textContent = eur.format(n * CONFIG.dealgroesse);
   $('proAbschluss').textContent = eur.format(provisionJeDeal);
@@ -61,7 +58,7 @@ input.max = slider.max = CONFIG.maxAbschluesse;
 input.addEventListener('input', () => { if (input.value !== '') set(input.value); });
 input.addEventListener('blur', () => set(input.value));
 slider.addEventListener('input', () => set(slider.value));
-chips.forEach((c) => c.addEventListener('click', () => set(c.dataset.v)));
+quick.forEach((b) => b.addEventListener('click', () => set(b.dataset.v)));
 $('minus').addEventListener('click', () => set(clamp(input.value) - 1));
 $('plus').addEventListener('click', () => set(clamp(input.value) + 1));
 set(input.value);
