@@ -17,9 +17,29 @@ function clamp(v) {
   return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesse, Math.max(0, v)) : 0;
 }
 
+const bars = [...document.querySelectorAll('#bars i')];
+const chips = [...document.querySelectorAll('.chip')];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let shown = 0, raf;
+
+function tween(to) {
+  cancelAnimationFrame(raf);
+  if (reduce) { shown = to; $('jahr').textContent = eur.format(to); return; }
+  const from = shown, t0 = performance.now(), dur = 450;
+  const tick = (t) => {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    shown = from + (to - from) * e;
+    $('jahr').textContent = eur.format(shown);
+    if (p < 1) raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+}
+
 function render(n) {
   const jahr = n * provisionJeDeal;
-  $('jahr').textContent = eur.format(jahr);
+  tween(jahr);
+  bars.forEach((b, i) => b.classList.toggle('on', i < n));
+  chips.forEach((c) => c.setAttribute('aria-pressed', String(+c.dataset.v === n)));
   $('monat').textContent = eur.format(jahr / 12);
   $('volumen').textContent = eur.format(n * CONFIG.dealgroesse);
   $('proAbschluss').textContent = eur.format(provisionJeDeal);
@@ -41,6 +61,7 @@ input.max = slider.max = CONFIG.maxAbschluesse;
 input.addEventListener('input', () => { if (input.value !== '') set(input.value); });
 input.addEventListener('blur', () => set(input.value));
 slider.addEventListener('input', () => set(slider.value));
+chips.forEach((c) => c.addEventListener('click', () => set(c.dataset.v)));
 $('minus').addEventListener('click', () => set(clamp(input.value) - 1));
 $('plus').addEventListener('click', () => set(clamp(input.value) + 1));
 set(input.value);

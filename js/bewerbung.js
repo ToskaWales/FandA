@@ -29,7 +29,7 @@ form.addEventListener('submit', (e) => {
     v('nachricht') || '–',
   ].join('\n');
   location.href = `mailto:${APPLY_EMAIL}?subject=${encodeURIComponent('Bewerbung Setter – ' + v('vorname') + ' ' + v('nachname'))}&body=${encodeURIComponent(body)}`;
-  status.textContent = 'Danke! Dein E-Mail-Programm wurde mit deiner Bewerbung geöffnet. Bitte sende die Nachricht dort ab. Öffnet sich nichts, schreib uns direkt an ' + APPLY_EMAIL + '.';
+  document.getElementById('statusText').textContent = 'Danke! Dein E-Mail-Programm wurde mit deiner Bewerbung geöffnet. Bitte sende die Nachricht dort ab. Öffnet sich nichts, schreib uns direkt an ' + APPLY_EMAIL + '.';
   status.classList.add('show');
   status.focus();
 });
