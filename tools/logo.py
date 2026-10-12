@@ -14,9 +14,9 @@ def load(name, axes):
     f = TTFont(os.path.join(FONTS, name))
     return instancer.instantiateVariableFont(f, axes, inplace=False)
 
-bodoni = load('bodoni-moda-normal.woff2', {'wght': 500, 'opsz': 28})
-bodoni_i = load('bodoni-moda-italic.woff2', {'wght': 400, 'opsz': 28})
-sans = load('public-sans-normal.woff2', {'wght': 600})
+bodoni = load('newsreader.woff2', {'wght': 560, 'opsz': 60})
+bodoni_i = bodoni  # kein Kursiv: aufrechtes Et-Zeichen
+sans = load('hanken-grotesk.woff2', {'wght': 700})
 
 def text_path(font, text, size, x, y, anchor='middle', tracking=0, fill=IVORY):
     gs = font.getGlyphSet(); cmap = font.getBestCmap(); upm = font['head'].unitsPerEm

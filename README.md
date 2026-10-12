@@ -18,7 +18,7 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 5. Optional: Referenzen/Zitate, Team- und Coach-Profile, Fotos ergänzen.
 
 ## Technik
-- Schriften (Bodoni Moda, Public Sans) liegen lokal in `assets/fonts/` (kein Google-Abruf, DSGVO-freundlich).
+- Schriften (Newsreader, Hanken Grotesk) liegen lokal in `assets/fonts/` (kein Google-Abruf, DSGVO-freundlich).
 - Keine Cookies, kein Tracking → kein Cookie-Banner nötig. Bei Einbindung von Analytics/Tools neu bewerten.
 - Animationen respektieren „reduzierte Bewegung“.
 - Design-Tokens (Farben, Schriften) stehen am Anfang von `css/style.css`.

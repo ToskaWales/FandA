@@ -44,7 +44,7 @@
   const arts = [...document.querySelectorAll('.proc-art .art')];
   const num = document.getElementById('procNum');
   if (steps.length && 'IntersectionObserver' in window) {
-    const roman = ['I', 'II', 'III', 'IV'];
+    const roman = ['01', '02', '03', '04'];
     const spy = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (!e.isIntersecting) return;
