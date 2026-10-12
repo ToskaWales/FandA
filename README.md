@@ -32,3 +32,6 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 
 ## Logo
 Das Logo (Seal mit Guilloché-Ring, Monogramm „F & A“ in Newsreader, „Sales Consulting“) liegt als SVG vor (`assets/logo.svg`, Buchstaben als Pfade) sowie als Kurzform `assets/logo-mark.svg` (goldenes „&“ im Ring) für Favicon/App-Icon. Neu erzeugen: `pip install fonttools brotli && python3 tools/logo.py`. PNG-Varianten (`logo-512.png`, `icon-*.png`, `apple-touch-icon.png`, `favicon.ico`) und `og.png` sind daraus abgeleitet.
+
+## Gestaltungsprinzipien (gegen den „KI-Look“)
+Recherchierte typische KI-Merkmale wurden bewusst vermieden bzw. entfernt: Verlaufstexte und -buttons, Glas-/Blur-Navigation, Leuchteffekte, Stock-Effekte (Cursor-Ring, magnetische Buttons, Count-up/Odometer, Fade-up bei jedem Abschnitt), Icon-Kacheln, Drei-Karten-Reihen, dekorative 01/02/03-Nummerierung (nur echte Abläufe sind nummeriert), gesperrte Großbuchstaben-Etiketten, Pfeile an Buttons, Akzentwort in Überschriften, Standardschrift Inter. Texte: konkret statt Floskeln, kaum Gedankenstriche, keine „nicht nur … sondern“-Konstruktionen. Gold dient nur Marke, Ornament und Hauptaktion.

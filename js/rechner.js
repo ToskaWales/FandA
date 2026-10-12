@@ -12,42 +12,19 @@ const input = $('abschluesse'), slider = $('slider');
 const quick = [...document.querySelectorAll('.quick button')];
 const provisionJeDeal = CONFIG.dealgroesse * CONFIG.provisionssatz;
 const abschlussFuerMillion = Math.ceil(CONFIG.millionSchwelle / provisionJeDeal);
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function clamp(v) {
   v = Math.round(Number(v));
   return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesse, Math.max(0, v)) : 0;
 }
 
-// Odometer: jede Ziffer rollt als Streifen 0–9 an ihre Position
-const odo = $('jahr');
-function odoSet(text) {
-  odo.setAttribute('aria-label', text);
-  const chars = [...text];
-  const sig = chars.map((c) => (/\d/.test(c) ? 'd' : c)).join('');
-  if (odo.dataset.sig !== sig) {          // Struktur ändert sich (z. B. 6 → 7 Stellen): neu aufbauen
-    odo.dataset.sig = sig;
-    odo.innerHTML = chars.map((c) => {
-      if (/\d/.test(c)) return `<span class="c dg" aria-hidden="true"><span class="strip">${[0,1,2,3,4,5,6,7,8,9].map((d) => `<span>${d}</span>`).join('')}</span></span>`;
-      if (c === '€') return '<span class="c cur" aria-hidden="true">€</span>';
-      return `<span class="c sep" aria-hidden="true">${c === ' ' || c === '\u00a0' ? '&nbsp;' : c}</span>`;
-    }).join('');
-  }
-  let k = 0;
-  odo.querySelectorAll('.strip').forEach((st) => {
-    const d = +chars.filter((c) => /\d/.test(c))[k++];
-    st.style.transform = `translateY(${-d * 1.12}em)`;
-  });
-}
-function tween(to) { odoSet(eur.format(to)); }
-
 function render(n) {
   const jahr = n * provisionJeDeal;
-  tween(jahr);
-  quick.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v === n)));
+  $('jahr').textContent = eur.format(jahr);
   $('monat').textContent = eur.format(jahr / 12);
   $('volumen').textContent = eur.format(n * CONFIG.dealgroesse);
   $('proAbschluss').textContent = eur.format(provisionJeDeal);
+  quick.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v === n)));
   $('hinweis').textContent = n >= abschlussFuerMillion
     ? 'Bei dieser Rechnung läge die Provision im siebenstelligen Bereich.'
     : `Rechnerisch ab ${abschlussFuerMillion} Abschlüssen pro Jahr siebenstellig.`;

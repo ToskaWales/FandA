@@ -20,8 +20,5 @@ def svg(name,els,size=1000):
     open(name,'w').write(s); print(name,len(s)//1024,'KB')
 # Hero: layered rosette + fine rings
 svg('hero.svg', rings([480,470,330,326])+rosette(13,300,120,16,rot0=0.1)+rosette(26,215,48,10,rot0=0.0)+rosette(7,120,50,7,pts=300))
-svg('a1.svg', rings([470,466])+rosette(9,330,120,14))
 svg('a2.svg', rings([470,466,300])+rosette(14,320,100,12,rot0=.2))
-svg('a3.svg', rings([470,466])+rosette(21,330,70,12)+rosette(5,150,70,6,pts=300))
-svg('a4.svg', rings([470,466,420,380,340])+rosette(32,240,36,10)+rosette(11,120,40,8,pts=300))
 svg('band.svg', rings([480,476])+rosette(17,330,95,18,rot0=.05)+rosette(34,200,30,10))
