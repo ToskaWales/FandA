@@ -308,3 +308,43 @@ footer.site .art.ft{position:absolute;z-index:-1;color:var(--gold);opacity:.08;w
 .js .rv{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:var(--d,0s)}
 .js .rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none}}
+
+/* =====================================================================
+   Handy-Lesefluss: Karten, Abschnittsleiste, Mehr lesen, Lesefokus
+   ===================================================================== */
+.readmore{display:none}
+.swipe-meta{display:none}
+.sectionbar{display:none}
+@media (max-width:759px){
+  html{scroll-padding-top:116px}
+  /* Wischbare Karten */
+  .swipe{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:22px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;margin:0 -22px;padding:0 22px 4px;border-top:0;scrollbar-width:none}
+  .swipe::-webkit-scrollbar{display:none}
+  .swipe:focus-visible{outline-offset:-2px}
+  .swipe>li{flex:0 0 82%;scroll-snap-align:start;border:1px solid var(--line-2);background:var(--surface);padding:22px 20px 24px;min-height:178px;align-content:start}
+  .swipe>li:last-child{margin-right:22px}
+  ol.swipe>li::before{font-size:2.2rem}
+  .swipe-meta{display:flex;align-items:center;justify-content:space-between;margin-top:14px;color:var(--muted);font-size:.9rem}
+  .swipe-dots{display:flex;gap:7px}
+  .swipe-dots i{width:7px;height:7px;border-radius:50%;background:var(--line-2);transition:background .2s,transform .2s}
+  .swipe-dots i.on{background:var(--gold);transform:scale(1.25)}
+  /* Mehr lesen */
+  .more[hidden]{display:none}
+  .readmore{display:inline-flex;align-items:center;min-height:48px;margin-top:6px;padding:0;background:none;border:0;border-bottom:1px solid var(--line-2);color:var(--fg);font:600 1rem var(--sans);cursor:pointer;align-self:flex-start}
+  .readmore[hidden]{display:none}
+  .prose .readmore{margin-top:12px}
+  /* Abschnittsleiste */
+  .sectionbar{display:flex;align-items:center;gap:12px;position:fixed;left:0;right:0;top:var(--hh,64px);z-index:19;height:34px;padding:0 22px;background:rgba(6,16,26,.96);border-bottom:1px solid var(--line);font-size:.82rem;color:var(--muted);transform:translateY(-100%);opacity:0;pointer-events:none;transition:transform .3s var(--ease),opacity .3s}
+  .sectionbar.show{transform:none;opacity:1}
+  .sb-label{color:var(--fg);font-weight:600}
+  .sb-count{margin-left:auto;font-variant-numeric:tabular-nums}
+  .sb-line{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:transparent}
+  .sb-line b{display:block;height:100%;background:var(--gold);transform:scaleX(0);transform-origin:0 50%;transition:transform .4s var(--ease)}
+  /* Lesefokus: Mitte voll, Rest leicht gedimmt */
+  .fr .rv.in{transition:opacity .45s var(--ease)}
+  .fr .rv.in:not(.fc):not(.nf){opacity:.62}
+  .fr .rv.in.fc{opacity:1}
+}
+@media (prefers-reduced-motion:reduce){.fr .rv.in:not(.fc):not(.nf){opacity:1}.sectionbar{transition:none}}
+
+.more>p{margin-top:1.1em}

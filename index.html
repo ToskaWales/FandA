@@ -42,7 +42,7 @@
   <div class="foot"><a class="btn" href="index.html#partner">Partner werden</a><a class="mail" href="mailto:platzhalter@example.de" data-mail data-mail-text>E-Mail schreiben</a><a class="mail" href="impressum.html">Impressum</a></div>
 </div>
 <main id="main">
-<section class="hero"><div class="art hero-art" aria-hidden="true"></div><div class="wrap">
+<section class="hero" data-label="Überblick"><div class="art hero-art" aria-hidden="true"></div><div class="wrap">
   <h1 class="lines"><span class="ln" style="--i:0"><span>Wir setzen Termine.</span></span> <span class="ln" style="--i:1"><span><span class="soft">Du machst Abschlüsse.</span></span></span></h1>
   <div class="hero-grid one">
     <div>
@@ -54,9 +54,9 @@
     </div>
   </div>
 </div></section>
-<section class="s "><div class="wrap">
+<section class="s " data-label="Entlastung"><div class="wrap">
 <div class="split"><div class="head"><h2>Weniger Akquise.<br>Mehr Abschlüsse.</h2></div>
-<div class="prose">
+<div class="prose" data-collapse="3">
 <p class="lede">Du bist Versicherungsvermittler und möchtest deine Zeit lieber in Beratungsgespräche investieren, statt stundenlang Kaltakquise zu betreiben?</p>
 <p>Genau hier kommen wir ins Spiel.</p>
 <p>F&amp;A Sales Consulting übernimmt die zeitintensive <strong>Erstansprache und Terminierung</strong> im Bereich der betrieblichen Altersvorsorge (bAV).</p>
@@ -64,15 +64,15 @@
 <p>Du übernimmst ab dem Punkt, an dem es wirklich zählt: <strong>beim Beratungsgespräch</strong>.</p>
 </div></div>
 </div></section>
-<section class="s alt" id="ablauf"><div class="wrap">
+<section class="s alt" id="ablauf" data-label="Ablauf"><div class="wrap">
 <div class="split"><div class="head"><h2>So funktioniert die Zusammenarbeit</h2></div>
-<ol class="steps"><li><div><h3>Wir übernehmen die Akquise</h3><p>Unsere Setter kontaktieren potenzielle Firmenkunden und führen die Erstgespräche.</p></div></li><li><div><h3>Wir vereinbaren deine Termine</h3><p>Interessierte Unternehmen erhalten einen Beratungstermin, der direkt in deinem Kalender landet.</p></div></li><li><div><h3>Du führst das Beratungsgespräch</h3><p>Du berätst die Unternehmen individuell zur bAV und begleitest sie bis zum Abschluss.</p></div></li></ol></div>
+<ol class="steps swipe"><li><div><h3>Wir übernehmen die Akquise</h3><p>Unsere Setter kontaktieren potenzielle Firmenkunden und führen die Erstgespräche.</p></div></li><li><div><h3>Wir vereinbaren deine Termine</h3><p>Interessierte Unternehmen erhalten einen Beratungstermin, der direkt in deinem Kalender landet.</p></div></li><li><div><h3>Du führst das Beratungsgespräch</h3><p>Du berätst die Unternehmen individuell zur bAV und begleitest sie bis zum Abschluss.</p></div></li></ol></div>
 </div></section>
-<section class="s "><div class="wrap">
+<section class="s " data-label="Vorteile"><div class="wrap">
 <div class="split"><div class="head"><h2>Deine Vorteile als Closer</h2><p class="s-intro">Closer sind die Versicherungsvermittler, die das Beratungsgespräch führen und abschließen. Das bist du.</p></div>
-<ul class="rows"><li><h3>Termine statt Kaltakquise</h3><span class="d">Wir kümmern uns um die Terminvereinbarung.</span></li><li><h3>Fokus auf Abschlüsse</h3><span class="d">Nutze deine Zeit für Beratung und Vertrieb.</span></li><li><h3>Mehr Zeit</h3><span class="d">Weniger Aufwand für die eigene Neukundengewinnung.</span></li><li><h3>Skalierbarer Vertrieb</h3><span class="d">Baue deine Beratungskapazitäten mit einem strukturierten Terminprozess aus.</span></li></ul></div>
+<ul class="rows swipe"><li><h3>Termine statt Kaltakquise</h3><span class="d">Wir kümmern uns um die Terminvereinbarung.</span></li><li><h3>Fokus auf Abschlüsse</h3><span class="d">Nutze deine Zeit für Beratung und Vertrieb.</span></li><li><h3>Mehr Zeit</h3><span class="d">Weniger Aufwand für die eigene Neukundengewinnung.</span></li><li><h3>Skalierbarer Vertrieb</h3><span class="d">Baue deine Beratungskapazitäten mit einem strukturierten Terminprozess aus.</span></li></ul></div>
 </div></section>
-<section class="s dark" id="partner"><div class="wrap">
+<section class="s dark" id="partner" data-label="Partner werden"><div class="wrap">
 <div class="split"><div class="head"><h2>Jetzt Partner werden</h2><p class="s-intro">Schreib uns kurz, wie du arbeitest und wie viele Beratungstermine du dir wünschst. Wir melden uns persönlich bei dir.</p></div>
 <form class="form" id="anfrageform" data-mail-form data-subject="Partneranfrage bAV-Vermittler" novalidate>
   <div class="row"><div class="field"><label class="cap" for="a-name">Name</label><input id="a-name" name="a-name" type="text" autocomplete="name" required><div class="err">Bitte gib deinen Namen an.</div></div><div class="field"><label class="cap" for="a-firma">Unternehmen / Agentur <span class="opt">(optional)</span></label><input id="a-firma" name="a-firma" type="text" autocomplete="organization"></div></div>
@@ -83,7 +83,7 @@
   <div class="form-status" role="status" tabindex="-1"><span data-status-text></span></div>
 </form></div>
 </div></section>
-<section class="s setter-link"><div class="wrap"><p><strong>Du telefonierst lieber, als zu beraten?</strong> Dafür suchen wir selbstständige Setter. <a class="tl" href="karriere.html">Zur Setter-Seite</a></p><p class="small">Closer arbeiten als selbstständige Versicherungsvermittler und Kooperationspartner.</p></div></section>
+<section class="s setter-link" data-label="Für Setter"><div class="wrap"><p><strong>Du telefonierst lieber, als zu beraten?</strong> Dafür suchen wir selbstständige Setter. <a class="tl" href="karriere.html">Zur Setter-Seite</a></p><p class="small">Closer arbeiten als selbstständige Versicherungsvermittler und Kooperationspartner.</p></div></section>
 </main>
 <footer class="site"><div class="art ft" aria-hidden="true"></div><div class="wrap">
   <div class="cols2">
