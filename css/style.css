@@ -290,3 +290,16 @@ footer.site .art.ft{position:absolute;z-index:-1;color:var(--gold);opacity:.08;w
 .setter-link p+p{margin-top:.6em}
 .back-link{margin-bottom:22px}
 @media (min-width:760px){.setter-link{padding:56px 0}.back-link{margin-bottom:30px}}
+/* Rechtstexte */
+.legal-in{max-width:46rem}
+.legal h1{font-size:clamp(2.2rem,8vw,3.2rem);margin-bottom:6px}
+.legal h2{font-family:var(--display);font-size:1.45rem;line-height:1.2;margin:38px 0 10px;letter-spacing:-.01em;scroll-margin-top:90px}
+.legal p{max-width:none;margin-top:.9em}
+.legal ul{margin:.9em 0 0 1.2em}
+.legal li{margin-top:.5em}
+.legal a{text-decoration:underline;text-underline-offset:3px}
+.legal code{font-size:.85em;background:rgba(255,255,255,.08);padding:1px 5px}
+.legal .toc{margin:22px 0 6px;padding:18px 20px;border:1px solid var(--line-2);background:var(--surface)}
+.legal .toc ol{margin:10px 0 0 1.3em}
+.legal .toc a{text-decoration:none;border-bottom:1px solid var(--line-2)}
+.ph{background:rgba(214,170,95,.16);color:var(--gold-hi);padding:0 .25em}

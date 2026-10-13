@@ -11,7 +11,7 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 
 ## Vor dem Livegang ausfüllen
 1. **`js/config.js`** — E-Mail und Telefon eintragen. Gilt automatisch für alle Links, den Footer und beide Formulare.
-2. **Impressum & Datenschutz** — Platzhalter `[PLATZHALTER: …]` ersetzen und rechtlich prüfen lassen; danach `<meta name="robots" content="noindex">` in beiden Dateien entfernen.
+2. **Impressum & Datenschutz** — ausführliche Texte sind angelegt (§ 5 DDG, DSGVO). Gelb markierte Felder `[PLATZHALTER: …]` mit den echten Angaben füllen (Firma, Anschrift, Vertretung, Telefon, ggf. Register/USt-ID, Datenschutzbehörde, E-Mail-Anbieter, Herkunft der Lead-Daten). Danach den gelben Hinweiskasten und `<meta name="robots" content="noindex">` entfernen und einmal rechtlich prüfen lassen. HTML-Kommentare in den Dateien enthalten weitere Hinweise.
 3. **Rechner** — Provisionssatz und Dealgrößen-Spanne stehen oben in `js/rechner.js`. Den Einkommenshinweis im Rechner rechtlich prüfen lassen (Verdienstaussagen). Texte laut Vorgabe: keine Festanstellung, keine garantierten Abschlüsse.
 4. **Formulare** — öffnen aktuell das E-Mail-Programm (`js/form.js`). Für den Dauerbetrieb einen Formular-Dienst oder ein Backend anbinden.
 5. Optional: Referenzen/Zitate, Team- und Coach-Profile, Fotos ergänzen.
