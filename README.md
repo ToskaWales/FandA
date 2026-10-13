@@ -5,14 +5,14 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 ## Seiten
 | Datei | Inhalt |
 |---|---|
-| `index.html` | Unternehmen: Terminsetting für bAV-Vermittler, Ablauf, Rollen, Anfrageformular |
-| `karriere.html` | Setter-Karriere: Angebot, Karriereweg, Provisionsrechner, FAQ, Bewerbung |
+| `index.html` | Für bAV-Vermittler („Closer“): Termine statt Kaltakquise, Ablauf, Vorteile, Setter-Teaser, Partner-Anfrage |
+| `karriere.html` | Für Setter (selbstständige Freelancer): Angebot, Provisionsrechner (5 % der Dealgröße, 200.000 € bis 5 Mio. €), FAQ, Bewerbung |
 | `impressum.html`, `datenschutz.html` | **Platzhalter — müssen rechtlich geprüft und gefüllt werden** (`noindex`, solange sie leer sind) |
 
 ## Vor dem Livegang ausfüllen
 1. **`js/config.js`** — E-Mail und Telefon eintragen. Gilt automatisch für alle Links, den Footer und beide Formulare.
 2. **Impressum & Datenschutz** — Platzhalter `[PLATZHALTER: …]` ersetzen und rechtlich prüfen lassen; danach `<meta name="robots" content="noindex">` in beiden Dateien entfernen.
-3. **Rechner** — Werte (Ø-Dealgröße, Provisionssatz) stehen oben in `js/rechner.js`. Den Einkommenshinweis im Rechner rechtlich prüfen lassen (Verdienstaussagen).
+3. **Rechner** — Provisionssatz und Dealgrößen-Spanne stehen oben in `js/rechner.js`. Den Einkommenshinweis im Rechner rechtlich prüfen lassen (Verdienstaussagen). Texte laut Vorgabe: keine Festanstellung, keine garantierten Abschlüsse.
 4. **Formulare** — öffnen aktuell das E-Mail-Programm (`js/form.js`). Für den Dauerbetrieb einen Formular-Dienst oder ein Backend anbinden.
 5. Optional: Referenzen/Zitate, Team- und Coach-Profile, Fotos ergänzen.
 

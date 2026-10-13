@@ -1,49 +1,43 @@
-// Provisionsrechner für Setter: Provision = Abschlüsse × Ø Dealgröße × Provisionssatz.
+// Provisionsrechner für Setter: Provision = Dealgröße × Provisionssatz, mal Anzahl der Abschlüsse.
 const CONFIG = {
-  dealgroesse: 2500000,   // € Ø Dealgröße
-  provisionssatz: 0.05,   // 5 % Setter-Provision
-  maxAbschluesse: 24,     // Obergrenze pro Jahr im Rechner
-  millionSchwelle: 1000000,
+  provisionssatz: 0.05,    // 5 % der Dealgröße
+  dealMin: 200000,         // € kleinste Dealgröße
+  dealMax: 5000000,        // € größte Dealgröße
+  maxAbschluesse: 24,      // Obergrenze pro Jahr im Rechner
 };
 
 const $ = (id) => document.getElementById(id);
 const eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
-const input = $('abschluesse'), slider = $('slider');
-const quick = [...document.querySelectorAll('.quick button')];
-const provisionJeDeal = CONFIG.dealgroesse * CONFIG.provisionssatz;
-const abschlussFuerMillion = Math.ceil(CONFIG.millionSchwelle / provisionJeDeal);
+const deal = $('deal'), input = $('abschluesse');
+const quickDeal = [...document.querySelectorAll('.quick button[data-d]')];
+const quickN = [...document.querySelectorAll('.quick button[data-v]')];
 
-function clamp(v) {
-  v = Math.round(Number(v));
-  return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesse, Math.max(0, v)) : 0;
-}
+const clampN = (v) => { v = Math.round(Number(v)); return Number.isFinite(v) ? Math.min(CONFIG.maxAbschluesse, Math.max(0, v)) : 0; };
+const clampD = (v) => { v = Math.round(Number(v) / 50000) * 50000; return Number.isFinite(v) ? Math.min(CONFIG.dealMax, Math.max(CONFIG.dealMin, v)) : 1000000; };
 
-function render(n) {
-  const jahr = n * provisionJeDeal;
+function render() {
+  const d = clampD(deal.value), n = clampN(input.value);
+  const je = d * CONFIG.provisionssatz, jahr = je * n;
+  $('dealOut').textContent = eur.format(d);
+  deal.setAttribute('aria-valuetext', eur.format(d));
   $('jahr').textContent = eur.format(jahr);
+  $('proAbschluss').textContent = eur.format(je);
   $('monat').textContent = eur.format(jahr / 12);
-  $('volumen').textContent = eur.format(n * CONFIG.dealgroesse);
-  $('proAbschluss').textContent = eur.format(provisionJeDeal);
-  quick.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v === n)));
-  $('hinweis').textContent = n >= abschlussFuerMillion
-    ? 'Bei dieser Rechnung läge die Provision im siebenstelligen Bereich.'
-    : `Rechnerisch ab ${abschlussFuerMillion} Abschlüssen pro Jahr siebenstellig.`;
+  $('volumen').textContent = eur.format(d * n);
+  $('annahmen').textContent = `Rechnung: ${eur.format(d)} × ${Math.round(CONFIG.provisionssatz * 100)} % = ${eur.format(je)} je Abschluss, bei ${n} Abschlüssen pro Jahr.`;
+  quickDeal.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.d === d)));
+  quickN.forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.v === n)));
 }
 
-function set(v) {
-  const n = clamp(v);
-  input.value = slider.value = n;
-  render(n);
-}
+const setN = (v) => { input.value = clampN(v); render(); };
+const setD = (v) => { deal.value = clampD(v); render(); };
 
-$('annahmen').textContent =
-  `Basis: Ø Dealgröße ${eur.format(CONFIG.dealgroesse)} × ${Math.round(CONFIG.provisionssatz * 100)} % Provision = ${eur.format(provisionJeDeal)} je Abschluss.`;
-$('maxlabel').textContent = CONFIG.maxAbschluesse;
-input.max = slider.max = CONFIG.maxAbschluesse;
-input.addEventListener('input', () => { if (input.value !== '') set(input.value); });
-input.addEventListener('blur', () => set(input.value));
-slider.addEventListener('input', () => set(slider.value));
-quick.forEach((b) => b.addEventListener('click', () => set(b.dataset.v)));
-$('minus').addEventListener('click', () => set(clamp(input.value) - 1));
-$('plus').addEventListener('click', () => set(clamp(input.value) + 1));
-set(input.value);
+deal.addEventListener('input', () => setD(deal.value));
+input.addEventListener('input', () => { if (input.value !== '') setN(input.value); });
+input.addEventListener('blur', () => setN(input.value));
+quickDeal.forEach((b) => b.addEventListener('click', () => setD(b.dataset.d)));
+quickN.forEach((b) => b.addEventListener('click', () => setN(b.dataset.v)));
+$('minus').addEventListener('click', () => setN(clampN(input.value) - 1));
+$('plus').addEventListener('click', () => setN(clampN(input.value) + 1));
+input.max = CONFIG.maxAbschluesse;
+render();

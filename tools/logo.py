@@ -8,7 +8,7 @@ from fontTools.pens.transformPen import TransformPen
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 FONTS = os.path.join(ROOT, 'assets', 'fonts')
-GOLD, GOLD_HI, IVORY, NAVY = '#c9a95f', '#e8cf94', '#efe9da', '#070b13'
+GOLD, GOLD_HI, GOLD_LO, IVORY, NAVY = '#d6aa5f', '#e8c67f', '#ac8449', '#faf8f9', '#06101a'
 
 def load(name, axes):
     f = TTFont(os.path.join(FONTS, name))
@@ -45,7 +45,7 @@ def rosette(n, a, b, copies, pts=280, rot0=0.0):
 
 def defs():
     return (f'<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{GOLD_HI}"/>'
-            f'<stop offset=".5" stop-color="{GOLD}"/><stop offset="1" stop-color="#9b7b3c"/></linearGradient></defs>')
+            f'<stop offset=".5" stop-color="{GOLD}"/><stop offset="1" stop-color="{GOLD_LO}"/></linearGradient></defs>')
 
 # ---------- Seal ----------
 def seal():
