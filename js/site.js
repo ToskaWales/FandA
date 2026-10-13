@@ -12,6 +12,29 @@
     lines.forEach((el) => io.observe(el));
   }
 
+  // Textblöcke erscheinen beim Scrollen nacheinander (nur mit JS und ohne "reduzierte Bewegung")
+  if (!reduce && 'IntersectionObserver' in window) {
+    const sel = [
+      '.hero .sub-l', '.hero .actions', '.hero .hero-note', '.hero dl.figs > div',
+      '.head > *', '.prose > *', '.lede', '.cmp .r', '.rows > li', 'ol.steps > li', '.list li',
+      '.two-col > div > h3', 'details', '.form > *', '.calc .in', '.calc .res', '.endcta > .wrap > *',
+      '.setter-link p', '.back-link', '.legal-in > h2, .legal-in > p, .legal-in > ul'
+    ].join(',');
+    const items = [...document.querySelectorAll(sel)].filter((el) => !el.closest('.menu') && !el.closest('footer'));
+    items.forEach((el) => el.classList.add('rv'));
+    const io = new IntersectionObserver((entries) => {
+      const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      visible.forEach((e, i) => {
+        e.target.style.setProperty('--d', Math.min(i, 5) * 0.09 + 's');
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    items.forEach((el) => io.observe(el));
+    // Sicherheitsnetz: Druck/Suche zeigt alles
+    addEventListener('beforeprint', () => items.forEach((el) => el.classList.add('in')));
+  }
+
   // Aktionsleiste (Daumenzone): nach kurzem Scrollen, am Formular aus
   const sticky = document.getElementById('sticky');
   const formEl = document.getElementById('bewerbung') || document.getElementById('anfrage');

@@ -303,3 +303,8 @@ footer.site .art.ft{position:absolute;z-index:-1;color:var(--gold);opacity:.08;w
 .legal .toc ol{margin:10px 0 0 1.3em}
 .legal .toc a{text-decoration:none;border-bottom:1px solid var(--line-2)}
 .ph{background:rgba(214,170,95,.16);color:var(--gold-hi);padding:0 .25em}
+
+/* Nacheinander einblenden (von site.js vergeben) */
+.js .rv{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:var(--d,0s)}
+.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none}}
