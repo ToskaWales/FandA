@@ -283,5 +283,10 @@ footer.site .art.ft{position:absolute;z-index:-1;color:var(--gold);opacity:.08;w
 .note-box.wide{margin-top:44px}
 .dealout{font-family:var(--display);font-size:2.8rem;line-height:1;color:var(--fg);margin:2px 0 6px;letter-spacing:-.02em;font-variant-numeric:lining-nums}
 .hero .lead-strong{font-size:clamp(1.4rem,4.4vw,1.9rem);margin-top:30px}
-.hero h1+.hero-grid .lead-strong:first-child{margin-top:0}
+.hero h1+.hero-grid .lead-strong:first-child{margin-top:22px}
 .quick button{padding:0 8px}
+.setter-link{padding:44px 0}
+.setter-link p{max-width:44em}
+.setter-link p+p{margin-top:.6em}
+.back-link{margin-bottom:22px}
+@media (min-width:760px){.setter-link{padding:56px 0}.back-link{margin-bottom:30px}}
