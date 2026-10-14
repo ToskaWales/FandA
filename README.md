@@ -1,6 +1,6 @@
 # F&A Sales Consulting — Website
 
-Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://toskawales.github.io/FandA/
+Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://fasalesconsulting.com/ (GitHub Pages; Domain bei Squarespace, DNS-Einträge siehe unten)
 
 ## Seiten
 | Datei | Inhalt |
@@ -21,7 +21,7 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 - Keine Cookies, kein Tracking → kein Cookie-Banner nötig. Bei Einbindung von Analytics/Tools neu bewerten.
 - Animationen respektieren „reduzierte Bewegung“.
 - Design-Tokens (Farben, Schriften) stehen am Anfang von `css/style.css`.
-- Veröffentlichung über GitHub Pages aus dem Standard-Branch; `sitemap.xml`/`robots.txt`/Open-Graph-URLs verweisen auf `toskawales.github.io/FandA` und bei eigener Domain anpassen.
+- Veröffentlichung über GitHub Pages aus dem Standard-Branch; `CNAME`, `sitemap.xml`, `robots.txt` und die Open-Graph-/Canonical-URLs verweisen auf `fasalesconsulting.com`.
 
 ## Gestaltung & Assets
 - **Guilloché-Ornamente** (`assets/art/*.svg`) sind generiert — Skript: `python3 tools/art.py`. Sie werden per CSS-Maske eingefärbt (`.art`), Farbe über `color`.
@@ -34,3 +34,10 @@ Das Logo (Seal mit Guilloché-Ring, Monogramm „F & A“ in Newsreader, „Sale
 
 ## Gestaltungsprinzipien (gegen den „KI-Look“)
 Recherchierte typische KI-Merkmale wurden bewusst vermieden bzw. entfernt: Verlaufstexte und -buttons, Glas-/Blur-Navigation, Leuchteffekte, Stock-Effekte (Cursor-Ring, magnetische Buttons, Count-up/Odometer, Fade-up bei jedem Abschnitt), Icon-Kacheln, Drei-Karten-Reihen, dekorative 01/02/03-Nummerierung (nur echte Abläufe sind nummeriert), gesperrte Großbuchstaben-Etiketten, Pfeile an Buttons, Akzentwort in Überschriften, Standardschrift Inter. Texte: konkret statt Floskeln, kaum Gedankenstriche, keine „nicht nur … sondern“-Konstruktionen. Gold dient nur Marke, Ornament und Hauptaktion.
+
+## Domain (fasalesconsulting.com)
+Hauptadresse ohne `www`; `www` leitet dorthin weiter. DNS bei Squarespace (Domains → DNS Settings → Custom Records):
+- `A` `@` → 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153
+- `CNAME` `www` → toskawales.github.io
+- Standard-Einträge, die auf Squarespace-Websites zeigen, löschen. **MX/TXT (E-Mail) nicht löschen.**
+GitHub: Settings → Pages → Custom domain `fasalesconsulting.com`, danach „Enforce HTTPS“.
