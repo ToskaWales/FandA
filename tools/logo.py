@@ -47,35 +47,61 @@ def defs():
     return (f'<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{GOLD_HI}"/>'
             f'<stop offset=".5" stop-color="{GOLD}"/><stop offset="1" stop-color="{GOLD_LO}"/></linearGradient></defs>')
 
-# ---------- Seal ----------
-def seal():
-    # Monogramm: F & A, mittig, Grundlinie y=30
-    gF, wF = text_path(bodoni, 'F', 118, 0, 0, 'start')
-    gA, wA = text_path(bodoni, 'A', 118, 0, 0, 'start')
-    gAmp, wAmp = text_path(bodoni_i, '&', 96, 0, 0, 'start')
-    gap = 5
-    total = wF + wAmp + wA + 2 * gap
-    x0 = -total / 2; base = 22
-    parts = []
-    x = x0
-    for font, ch, size, fill, w in ((bodoni, 'F', 118, IVORY, wF), (bodoni_i, '&', 96, 'url(#g)', wAmp), (bodoni, 'A', 118, IVORY, wA)):
-        parts.append(text_path(font, ch, size, x, base, 'start', fill=fill)[0]); x += w + gap
-    sub, _ = text_path(sans, 'SALES CONSULTING', 13.5, 0, 74, 'middle', tracking=4.4, fill=IVORY)
-    ring = (f'<g stroke="url(#g)" stroke-width="1.1" fill="none" opacity=".95">'
-            f'<circle r="244"/><circle r="238" opacity=".5"/>'
-            + rosette(24, 188, 24, 12, rot0=0.05) + rosette(12, 188, 14, 8, pts=220)
-            + '<circle r="150"/><circle r="146" opacity=".5"/></g>')
-    rule = f'<g stroke="url(#g)" stroke-width="1"><path d="M-84 46H84" opacity=".7"/><path d="M-84 92H84" opacity=".7"/></g>'
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="-250 -250 500 500" role="img" aria-label="F&amp;A Sales Consulting">'
-            f'{defs()}<circle r="250" fill="{NAVY}"/>{ring}{"".join(parts)}{rule}{sub}</svg>')
+# ---------- Seal (nach Vorlage: F | & | A, offener Ring, Balken mit Pfeil) ----------
+def taper_arc(cx, cy, r, a0, a1, wmax, n=160, power=.75):
+    """Gefüllter Bogen, der zu beiden Enden hin auslaufend dünn wird. Winkel in Grad, im Uhrzeigersinn ab +x."""
+    outer, inner = [], []
+    for i in range(n + 1):
+        u = i / n; a = math.radians(a0 + (a1 - a0) * u)
+        hw = wmax / 2 * math.sin(math.pi * u) ** power
+        outer.append((cx + (r + hw) * math.cos(a), cy + (r + hw) * math.sin(a)))
+        inner.append((cx + (r - hw) * math.cos(a), cy + (r - hw) * math.sin(a)))
+    pts = outer + inner[::-1]
+    return '<path d="M' + 'L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + 'Z" fill="url(#g)"/>'
 
-# ---------- Mark (Favicon/App): goldenes & im Ring ----------
+def seal_defs():
+    return (f'<defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="200" y1="260" x2="820" y2="620">'
+            f'<stop offset="0" stop-color="{GOLD_HI}"/><stop offset=".55" stop-color="{GOLD}"/><stop offset="1" stop-color="{GOLD_LO}"/></linearGradient>'
+            f'<linearGradient id="h" gradientUnits="userSpaceOnUse" x1="130" x2="872" y1="0" y2="0"><stop offset="0" stop-color="{GOLD}" stop-opacity="0"/><stop offset=".5" stop-color="{GOLD}"/><stop offset="1" stop-color="{GOLD}" stop-opacity="0"/></linearGradient></defs>')
+
+def seal():
+    serif = load('newsreader.woff2', {'wght': 360, 'opsz': 72})
+    light = load('hanken-grotesk.woff2', {'wght': 300})
+    reg = load('hanken-grotesk.woff2', {'wght': 400})
+    base = 562; cx = 502
+    SZ, SE, gap = 300, 176, 26
+    wF = text_path(serif, 'F', SZ, 0, 0, 'start')[1]; wA = text_path(serif, 'A', SZ, 0, 0, 'start')[1]
+    wE = text_path(serif, '&', SE, 0, 0, 'start')[1]
+    total = wF + wA + wE + 4 * gap + 2
+    x = cx - total / 2
+    f = text_path(serif, 'F', SZ, x, base, 'start', fill='url(#g)')[0]; x += wF + gap
+    l1 = x; x += 1 + gap
+    e = text_path(serif, '&', SE, x, base - 14, 'start', fill=IVORY)[0]; x += wE + gap
+    l2 = x; x += 1 + gap
+    a = text_path(serif, 'A', SZ, x, base, 'start', fill='url(#g)')[0]
+    v = f'<g stroke="{GOLD}" stroke-width="1.4"><path d="M{l1:.1f} 440V{base-2}"/><path d="M{l2:.1f} 440V{base-2}"/></g>'
+    sub = text_path(light, 'SALES CONSULTING', 41, cx, 667, 'middle', tracking=13.5, fill=IVORY)[0]
+    rules = f'<g stroke="url(#h)" stroke-width="1.6"><path d="M130 603H872"/><path d="M130 698H872"/></g>'
+    ring = taper_arc(cx + 2, 520, 362, 226, 374, 5.5) + taper_arc(cx + 2, 520, 362, 33, 147, 4.5)
+    bars = (f'<g fill="url(#g)"><rect x="456" y="800" width="26" height="30"/><rect x="496" y="780" width="26" height="50"/>'
+            f'<rect x="536" y="758" width="26" height="72"/></g>'
+            f'<path d="M449 790C486 784 528 760 574 722" fill="none" stroke="url(#g)" stroke-width="2.4" stroke-linecap="round"/>'
+            f'<path d="M580 716L560 721L571 736Z" fill="url(#g)"/>')
+    tag = text_path(reg, 'MEHR WERT. MEHR ERFOLG. GEMEINSAM WACHSEN.', 19.5, cx, 917, 'middle', tracking=3.2, fill=GOLD)[0]
+    foot = f'<path d="M{cx-52} 948H{cx+52}" stroke="{GOLD}" stroke-width="1.2" opacity=".8"/>'
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="F&amp;A Sales Consulting">'
+            f'{seal_defs()}<rect width="1000" height="1000" fill="{NAVY}"/>{ring}{f}{v}{e}{a}{rules}{sub}{bars}{tag}{foot}</svg>')
+
+# ---------- Mark (Favicon/App): goldenes & im offenen Ring ----------
 def mark():
-    g, w = text_path(bodoni_i, '&', 330, 0, 0, 'start')
-    amp, _ = text_path(bodoni_i, '&', 330, -w / 2, 118, 'start', fill='url(#g)')
-    ring = ('<g stroke="url(#g)" fill="none" stroke-width="5"><circle r="236"/><circle r="214" opacity=".45" stroke-width="3"/></g>')
+    serif = load('newsreader.woff2', {'wght': 420, 'opsz': 72})
+    g, w = text_path(serif, '&', 330, 0, 0, 'start')
+    amp = text_path(serif, '&', 330, -w / 2, 112, 'start', fill='url(#g)')[0]
+    ring = taper_arc(0, 0, 222, 218, 382, 9) + taper_arc(0, 0, 222, 28, 152, 7)
+    d = (f'<defs><linearGradient id="g" gradientUnits="userSpaceOnUse" x1="-200" y1="-200" x2="200" y2="200">'
+         f'<stop offset="0" stop-color="{GOLD_HI}"/><stop offset=".55" stop-color="{GOLD}"/><stop offset="1" stop-color="{GOLD_LO}"/></linearGradient></defs>')
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="-250 -250 500 500" role="img" aria-label="F&amp;A">'
-            f'{defs()}<circle r="250" fill="{NAVY}"/>{ring}{amp}</svg>')
+            f'{d}<circle r="250" fill="{NAVY}"/>{ring}{amp}</svg>')
 
 if __name__ == '__main__':
     open(os.path.join(ROOT, 'assets', 'logo.svg'), 'w').write(seal())
