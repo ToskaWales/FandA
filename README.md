@@ -9,12 +9,12 @@ Statische Website (HTML, CSS, JavaScript — kein Build-Schritt). Live: https://
 | `karriere.html` | Für Setter (selbstständige Freelancer): Angebot, Provisionsrechner (5 % der Dealgröße, 200.000 € bis 5 Mio. €), FAQ, Bewerbung |
 | `impressum.html`, `datenschutz.html` | **Platzhalter — müssen rechtlich geprüft und gefüllt werden** (`noindex`, solange sie leer sind) |
 
-## Vor dem Livegang ausfüllen
-1. **`js/config.js`** — E-Mail und Telefon eintragen. Gilt automatisch für alle Links, den Footer und beide Formulare.
-2. **Impressum & Datenschutz** — ausführliche Texte sind angelegt (§ 5 DDG, DSGVO). Gelb markierte Felder `[PLATZHALTER: …]` mit den echten Angaben füllen (Firma, Anschrift, Vertretung, Telefon, ggf. Register/USt-ID, Datenschutzbehörde, E-Mail-Anbieter, Herkunft der Lead-Daten). Danach den gelben Hinweiskasten und `<meta name="robots" content="noindex">` entfernen und einmal rechtlich prüfen lassen. HTML-Kommentare in den Dateien enthalten weitere Hinweise.
-3. **Rechner** — Provisionssatz und Dealgrößen-Spanne stehen oben in `js/rechner.js`. Den Einkommenshinweis im Rechner rechtlich prüfen lassen (Verdienstaussagen). Texte laut Vorgabe: keine Festanstellung, keine garantierten Abschlüsse.
-4. **Formulare** — öffnen aktuell das E-Mail-Programm (`js/form.js`). Für den Dauerbetrieb einen Formular-Dienst oder ein Backend anbinden.
-5. Optional: Referenzen/Zitate, Team- und Coach-Profile, Fotos ergänzen.
+## Vor dem Livegang
+1. **Kontaktdaten** stehen in `js/config.js` (E-Mail, Telefon) und gelten für Links, Footer und beide Formulare.
+2. **Impressum & Datenschutz** sind mit den Firmendaten befüllt (F&A Sales Consulting GbR, Lohne). Offen: **USt-IdNr.** im Impressum ergänzen, sobald vorhanden (auskommentierter Block in `impressum.html`). HTML-Kommentare enthalten weitere Hinweise (GitHub/DPF-Zertifizierung prüfen, § 34d GewO, B2B-Telefonansprache). Einmal rechtlich prüfen lassen.
+3. **Rechner** — Provisionssatz und Dealgrößen-Spanne stehen oben in `js/rechner.js`. Den Einkommenshinweis rechtlich prüfen lassen. Texte laut Vorgabe: keine Festanstellung, keine garantierten Abschlüsse.
+4. **Formulare** — öffnen das E-Mail-Programm (`js/form.js`). Für den Dauerbetrieb einen Formular-Dienst oder ein Backend anbinden. Statt Einwilligungs-Checkbox steht ein Datenschutzhinweis (Rechtsgrundlage Art. 6 Abs. 1 lit. b/f DSGVO).
+5. Optional: Referenzen/Zitate, Fotos ergänzen.
 
 ## Technik
 - Schriften (Newsreader, Hanken Grotesk) liegen lokal in `assets/fonts/` (kein Google-Abruf, DSGVO-freundlich).

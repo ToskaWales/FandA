@@ -348,3 +348,5 @@ footer.site .art.ft{position:absolute;z-index:-1;color:var(--gold);opacity:.08;w
 @media (prefers-reduced-motion:reduce){.fr .rv.in:not(.fc):not(.nf){opacity:1}.sectionbar{transition:none}}
 
 .more>p{margin-top:1.1em}
+.privacy-note{margin-top:-6px}
+.privacy-note a{text-decoration:underline;text-underline-offset:3px;color:var(--body)}

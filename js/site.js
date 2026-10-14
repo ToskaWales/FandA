@@ -77,7 +77,7 @@
       '.hero .sub-l', '.hero .actions', '.hero .hero-note', '.hero dl.figs > div', '.hero .back-link', '.hero .note-box',
       '.head > *', '.prose > *', '.cmp .r', '.rows > li', 'ol.steps > li', '.list li',
       '.two-col > div > h3', 'details', '.form > *', '.calc .in', '.calc .res', '.endcta > .wrap > *',
-      '.setter-link p', '.legal-in > h2, .legal-in > p, .legal-in > ul'
+      '.setter-link p'
     ].join(',');
     $$(sel).filter((el) => !el.closest('.menu') && !el.closest('footer')).forEach((el) => {
       const inSwipe = el.parentElement && el.parentElement.classList.contains('swipe');
