@@ -27,24 +27,78 @@
       return ok;
     };
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!validate()) return;
-      const lines = [];
-      form.querySelectorAll('input:not([type=checkbox]), select, textarea').forEach((el) => {
+    const hp = document.createElement('input');   // Spam-Falle: Menschen sehen das Feld nicht
+    hp.type = 'text'; hp.name = 'website'; hp.tabIndex = -1; hp.autocomplete = 'off'; hp.setAttribute('aria-hidden', 'true');
+    hp.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;opacity:0';
+    form.appendChild(hp);
+    const t0 = Date.now();
+
+    const collect = () => {
+      const data = {};
+      form.querySelectorAll('input:not([type=checkbox]):not([name=website]), select, textarea').forEach((el) => {
         const label = form.querySelector(`label[for="${el.id}"]`);
         const name = label ? label.textContent.replace('(optional)', '').trim() : el.name;
-        if (el.value.trim()) lines.push(`${name}: ${el.value.trim()}`);
+        if (el.value.trim()) data[name] = el.value.trim();
       });
-      const who = (form.elements.vorname?.value || form.elements.name?.value || '').trim();
+      return data;
+    };
+
+    const mailFallback = (data) => {
+      const lines = Object.entries(data).map(([k, v]) => `${k}: ${v}`);
+      const who = (form.elements.vorname?.value || form.elements.name?.value || form.elements['a-name']?.value || '').trim();
       const subject = `${form.dataset.subject}${who ? ' – ' + who : ''}`;
       location.href = `mailto:${FA.EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+    };
+
+    const send = async (data) => {
+      const v = (id) => (form.elements[id]?.value || '').trim();
+      const row = {
+        kind: form.dataset.kind || (form.id === 'apply' ? 'setter' : 'partner'),
+        name: [v('vorname'), v('nachname'), v('a-name')].filter(Boolean).join(' '),
+        email: v('email') || v('a-email'),
+        phone: v('telefon') || v('a-tel'),
+        company: v('a-firma') || null,
+        message: v('nachricht') || v('a-msg') || null,
+        data,
+      };
+      const res = await fetch(`${FA.SUPABASE_URL}/rest/v1/leads`, {
+        method: 'POST',
+        headers: { apikey: FA.SUPABASE_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify(row),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validate()) return;
       const formal = form.hasAttribute('data-formal');
-      status.querySelector('[data-status-text]').textContent = formal
-        ? `Danke! Die Nachricht liegt in Ihrem E-Mail-Programm bereit — bitte senden Sie sie dort ab. Öffnet sich nichts, schreiben Sie uns direkt an ${FA.EMAIL}.`
-        : `Danke! Die Nachricht liegt in deinem E-Mail-Programm bereit — bitte sende sie dort ab. Öffnet sich nichts, schreib uns direkt an ${FA.EMAIL}.`;
-      status.classList.add('show');
-      status.focus();
+      const text = status.querySelector('[data-status-text]');
+      const btn = form.querySelector('button[type=submit]');
+      const data = collect();
+      const show = (msg) => { text.textContent = msg; status.classList.add('show'); status.focus(); };
+
+      if (hp.value || Date.now() - t0 < 2500) {               // Bot: so tun, als wäre alles gut
+        show(formal ? 'Danke! Wir melden uns bei Ihnen.' : 'Danke! Wir melden uns bei dir.');
+        return;
+      }
+      if (FA.SUPABASE_URL && FA.SUPABASE_KEY) {
+        btn.disabled = true;
+        try {
+          await send(data);
+          form.reset();
+          show(formal ? 'Danke! Ihre Nachricht ist bei uns angekommen. Wir melden uns persönlich bei Ihnen.'
+                      : 'Danke! Deine Nachricht ist bei uns angekommen. Wir melden uns persönlich bei dir.');
+        } catch (err) {
+          mailFallback(data);
+          show(`Das direkte Senden hat nicht geklappt. Deine Nachricht liegt jetzt in deinem E-Mail-Programm bereit, bitte sende sie dort ab. Oder schreib uns an ${FA.EMAIL}.`);
+        } finally { btn.disabled = false; }
+        return;
+      }
+      mailFallback(data);
+      show(formal
+        ? `Danke! Die Nachricht liegt in Ihrem E-Mail-Programm bereit. Bitte senden Sie sie dort ab. Öffnet sich nichts, schreiben Sie uns direkt an ${FA.EMAIL}.`
+        : `Danke! Die Nachricht liegt in deinem E-Mail-Programm bereit. Bitte sende sie dort ab. Öffnet sich nichts, schreib uns direkt an ${FA.EMAIL}.`);
     });
 
     form.addEventListener('input', (e) => {

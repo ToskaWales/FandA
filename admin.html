@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#06101a">
+<meta name="color-scheme" content="dark">
+<title>Anfragen | F&A Sales Consulting</title>
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" href="assets/icon-192.png" type="image/png" sizes="192x192">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin">
+<header class="a-top"><div class="a-wrap">
+  <a class="a-brand" href="index.html" aria-label="Zur Website"><img src="assets/logo.svg" alt="F&amp;A Sales Consulting" width="44" height="44"></a>
+  <div class="a-user" id="user" hidden><span id="who"></span><button type="button" class="a-link" id="logout">Abmelden</button></div>
+</div></header>
+
+<main class="a-wrap" id="main">
+  <section id="login" class="a-card" hidden>
+    <h1>Anmelden</h1>
+    <p class="a-muted">Nur für das Team von F&amp;A.</p>
+    <form id="loginform" novalidate>
+      <div class="field"><label class="cap" for="l-email">E-Mail</label><input id="l-email" type="email" autocomplete="username" required></div>
+      <div class="field"><label class="cap" for="l-pass">Passwort</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
+      <p class="a-error" id="loginerr" role="alert" hidden></p>
+      <button class="btn" type="submit">Anmelden</button>
+    </form>
+  </section>
+
+  <section id="app" hidden>
+    <div class="a-head">
+      <h1>Anfragen</h1>
+      <button type="button" class="a-link" id="reload">Aktualisieren</button>
+    </div>
+    <div class="a-tabs" role="tablist" aria-label="Filter">
+      <button type="button" role="tab" data-f="neu" aria-selected="true">Neu <span id="c-neu">0</span></button>
+      <button type="button" role="tab" data-f="kontaktiert" aria-selected="false">Kontaktiert <span id="c-kontaktiert">0</span></button>
+      <button type="button" role="tab" data-f="alle" aria-selected="false">Alle <span id="c-alle">0</span></button>
+    </div>
+    <p class="a-muted" id="state" role="status"></p>
+    <ul class="a-list" id="list"></ul>
+  </section>
+  <noscript><p class="a-card">Diese Seite braucht JavaScript.</p></noscript>
+</main>
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

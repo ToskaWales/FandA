@@ -41,3 +41,15 @@ Hauptadresse ohne `www`; `www` leitet dorthin weiter. DNS bei Squarespace (Domai
 - `CNAME` `www` → toskawales.github.io
 - Standard-Einträge, die auf Squarespace-Websites zeigen, löschen. **MX/TXT (E-Mail) nicht löschen.**
 GitHub: Settings → Pages → Custom domain `fasalesconsulting.com`, danach „Enforce HTTPS“.
+
+## Anfragen & Admin (Supabase)
+
+Formulare speichern Anfragen in einer Datenbank. Ansehen und als „kontaktiert“ markieren geht unter `/admin.html` (nicht verlinkt, `noindex`).
+
+1. Konto auf supabase.com, neues Projekt, **Region: Central EU (Frankfurt)**.
+2. **SQL Editor** → Inhalt von `supabase/schema.sql` einfügen → Run. (Dort die Admin-E-Mails in `is_admin()` eintragen.)
+3. **Authentication → Users → Add user**: E-Mail + Passwort anlegen, „Auto Confirm“ an. **Authentication → Sign In / Providers**: „Allow new users to sign up“ **aus**.
+4. **Project Settings → API**: `Project URL` und den `anon`/`publishable` Key in `js/config.js` als `SUPABASE_URL` und `SUPABASE_KEY` eintragen. Der Key ist öffentlich und durch die Regeln im Schema geschützt (Besucher dürfen nur einfügen).
+5. Auftragsverarbeitungsvertrag (DPA) bei Supabase abschließen, Datenschutzabschnitt 6 prüfen.
+
+Bleiben die beiden Werte leer, öffnen die Formulare wie bisher das E-Mail-Programm. Schlägt das Senden fehl, greift derselbe Ersatzweg.
