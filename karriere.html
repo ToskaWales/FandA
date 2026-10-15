@@ -31,13 +31,13 @@
 <body>
 <a class="skip" href="#main">Zum Inhalt springen</a>
 <header class="site"><div class="wrap">
-  <a class="brand" href="index.html" aria-label="F&amp;A Sales Consulting, Startseite"><img src="assets/logo-mark.svg" alt="" width="36" height="36"><span class="wm">F<i>&amp;</i>A</span></a>
+  <a class="brand" href="index.html" aria-label="F&amp;A Sales Consulting, Startseite"><img src="assets/logo.svg" alt="F&amp;A Sales Consulting" width="56" height="56"></a>
   <nav aria-label="Hauptnavigation"><a href="index.html">Für Vermittler</a><a href="karriere.html" aria-current="page">Für Setter</a></nav>
   <a class="cta-h" href="karriere.html#bewerbung">Als Setter bewerben</a>
   <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu"><span>Menü</span><span class="bars" aria-hidden="true"><i></i><i></i></span></button>
 </div></header>
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menü">
-  <div class="top"><a class="brand" href="index.html"><img src="assets/logo-mark.svg" alt="" width="36" height="36"><span class="wm">F<i>&amp;</i>A</span></a><button class="menu-btn" id="menuClose" type="button"><span>Schließen</span><span class="bars" aria-hidden="true"><i style="transform:translateY(3.7px) rotate(45deg)"></i><i style="transform:translateY(-3.7px) rotate(-45deg)"></i></span></button></div>
+  <div class="top"><a class="brand" href="index.html"><img src="assets/logo.svg" alt="F&amp;A Sales Consulting" width="56" height="56"></a><button class="menu-btn" id="menuClose" type="button"><span>Schließen</span><span class="bars" aria-hidden="true"><i style="transform:translateY(3.7px) rotate(45deg)"></i><i style="transform:translateY(-3.7px) rotate(-45deg)"></i></span></button></div>
   <nav aria-label="Menü"><a href="index.html">Für Vermittler</a><a href="karriere.html" aria-current="page">Für Setter</a></nav>
   <div class="foot"><a class="btn" href="karriere.html#bewerbung">Als Setter bewerben</a><a class="mail" href="mailto:franz.dippel@fasalesconsulting.com" data-mail data-mail-text>E-Mail schreiben</a><a class="mail" href="impressum.html">Impressum</a></div>
 </div>
@@ -126,7 +126,7 @@
 <section class="s dark" id="bewerbung" data-label="Bewerbung"><div class="wrap"><div class="split"><div class="head"><h2>Jetzt als Setter bewerben</h2><p class="s-intro">Schick uns eine Kurzbewerbung. Wir melden uns persönlich bei dir.</p></div>
 <form class="form" id="apply" data-mail-form data-subject="Bewerbung Setter" novalidate>
   <div class="row"><div class="field"><label class="cap" for="vorname">Vorname</label><input id="vorname" name="vorname" type="text" autocomplete="given-name" required><div class="err">Bitte gib deinen Vornamen an.</div></div><div class="field"><label class="cap" for="nachname">Nachname</label><input id="nachname" name="nachname" type="text" autocomplete="family-name" required><div class="err">Bitte gib deinen Nachnamen an.</div></div></div>
-  <div class="row"><div class="field"><label class="cap" for="email">E-Mail</label><input id="email" name="email" type="email" autocomplete="email" required><div class="err">Bitte gib eine gültige E-Mail-Adresse an.</div></div><div class="field"><label class="cap" for="telefon">Telefon <span class="opt">(optional)</span></label><input id="telefon" name="telefon" type="tel" autocomplete="tel"></div></div>
+  <div class="row"><div class="field"><label class="cap" for="email">E-Mail</label><input id="email" name="email" type="email" autocomplete="email" required><div class="err">Bitte gib eine gültige E-Mail-Adresse an.</div></div><div class="field"><label class="cap" for="telefon">Telefon</label><input id="telefon" name="telefon" type="tel" autocomplete="tel" required pattern="[\d\s\+\(\)\/\.\-]{6,}" inputmode="tel"><div class="err">Bitte gib deine Telefonnummer an, damit wir dich erreichen.</div></div></div>
   <div class="field"><label class="cap" for="erfahrung">Vertriebserfahrung</label><select id="erfahrung" name="erfahrung" required><option value="">Bitte wählen</option><option>Keine, Quereinsteiger</option><option>Bis 2 Jahre</option><option>Mehr als 2 Jahre</option></select><div class="err">Bitte wähle eine Option.</div></div>
   <div class="field"><label class="cap" for="nachricht">Was motiviert dich? <span class="opt">(optional)</span></label><textarea id="nachricht" name="nachricht"></textarea></div>
   <p class="small privacy-note">Informationen zur Verarbeitung deiner personenbezogenen Daten findest du in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>

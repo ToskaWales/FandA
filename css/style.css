@@ -57,7 +57,7 @@ p+p{margin-top:1em}
 header.site{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top)}
 header.site .wrap{display:flex;align-items:center;justify-content:space-between;min-height:64px;gap:20px}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--fg)}
-.brand img{width:36px;height:36px;display:block}
+.brand img{width:56px;height:56px;display:block}
 .brand .wm{font-family:var(--display);font-size:1.6rem;font-weight:600;letter-spacing:.02em;line-height:1}
 .brand .wm i{font-style:normal;font-weight:500;color:var(--gold);padding:0 .05em}
 header.site nav{display:none}
