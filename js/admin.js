@@ -96,7 +96,37 @@
     $('state').textContent = rows.length ? '' : (filter === 'neu' ? 'Keine neuen Anfragen.' : 'Keine Einträge.');
   };
 
+  const loadTeam = async () => {
+    const box = $('members');
+    try {
+      const rows = await api('admins?select=email&order=email.asc');
+      box.replaceChildren(...rows.map((r) => {
+        const li = el('li'); li.append(el('span', '', r.email));
+        if (r.email !== (session.email || '').toLowerCase()) {
+          const b = el('button', 'a-link', 'Entfernen'); b.type = 'button';
+          b.addEventListener('click', async () => {
+            if (!confirm(`${r.email} den Zugang entziehen?`)) return;
+            try { await api(`admins?email=eq.${encodeURIComponent(r.email)}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }); loadTeam(); }
+            catch (e) { $('teamerr').textContent = 'Entfernen fehlgeschlagen.'; $('teamerr').hidden = false; }
+          });
+          li.append(b);
+        } else li.append(el('span', 'lead-saved', 'du'));
+        return li;
+      }));
+    } catch (e) { box.replaceChildren(); }
+  };
+
+  $('addadmin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('teamerr'); err.hidden = true;
+    const email = $('n-email').value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Bitte eine gültige E-Mail-Adresse eingeben.'; err.hidden = false; return; }
+    try { await api('admins', { method: 'POST', headers: { Prefer: 'return=minimal,resolution=ignore-duplicates' }, body: JSON.stringify({ email }) }); $('n-email').value = ''; loadTeam(); }
+    catch (x) { err.textContent = 'Hinzufügen fehlgeschlagen.'; err.hidden = false; }
+  });
+
   const load = async () => {
+    loadTeam();
     $('state').textContent = 'Lade …';
     try { leads = await api('leads?select=*&order=created_at.desc&limit=500'); render(); }
     catch (e) { $('state').textContent = 'Laden fehlgeschlagen. Ist dein Konto als Admin freigeschaltet?'; }

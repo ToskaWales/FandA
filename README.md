@@ -47,9 +47,11 @@ GitHub: Settings → Pages → Custom domain `fasalesconsulting.com`, danach „
 Formulare speichern Anfragen in einer Datenbank. Ansehen und als „kontaktiert“ markieren geht unter `/admin.html` (nicht verlinkt, `noindex`).
 
 1. Konto auf supabase.com, neues Projekt, **Region: Central EU (Frankfurt)**.
-2. **SQL Editor** → Inhalt von `supabase/schema.sql` einfügen → Run. (Dort die Admin-E-Mails in `is_admin()` eintragen.)
+2. **SQL Editor** → Inhalt von `supabase/schema.sql` einfügen → Run. (Die erste Admin-E-Mail steht schon drin.)
 3. **Authentication → Users → Add user**: E-Mail + Passwort anlegen, „Auto Confirm“ an. **Authentication → Sign In / Providers**: „Allow new users to sign up“ **aus**.
 4. **Project Settings → API**: `Project URL` und den `anon`/`publishable` Key in `js/config.js` als `SUPABASE_URL` und `SUPABASE_KEY` eintragen. Der Key ist öffentlich und durch die Regeln im Schema geschützt (Besucher dürfen nur einfügen).
 5. Auftragsverarbeitungsvertrag (DPA) bei Supabase abschließen, Datenschutzabschnitt 6 prüfen.
+
+**Weitere Admins:** Person unter *Authentication → Users → Add user* anlegen (Auto Confirm), dann auf `/admin.html` unter „Team“ ihre E-Mail hinzufügen. Entfernen geht dort ebenfalls.
 
 Bleiben die beiden Werte leer, öffnen die Formulare wie bisher das E-Mail-Programm. Schlägt das Senden fehl, greift derselbe Ersatzweg.

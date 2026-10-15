@@ -20,14 +20,28 @@ create table if not exists public.leads (
 
 create index if not exists leads_created_idx on public.leads (created_at desc);
 
--- Admin-E-Mail-Adressen: hier eintragen, wer die Admin-Seite nutzen darf (in Kleinbuchstaben).
+-- Wer die Admin-Seite nutzen darf: Tabelle "admins" (wird auch auf der Admin-Seite unter "Team" verwaltet).
+create table if not exists public.admins (
+  email text primary key check (email = lower(email) and char_length(email) between 3 and 254)
+);
+insert into public.admins (email) values ('franz.dippel@fasalesconsulting.com') on conflict do nothing;
+
 create or replace function public.is_admin() returns boolean
-language sql stable as $$
-  select lower(coalesce(auth.jwt() ->> 'email', '')) in (
-    'franz.dippel@fasalesconsulting.com'
-    -- , 'weitere.person@fasalesconsulting.com'
-  )
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.admins where email = lower(coalesce(auth.jwt() ->> 'email', '')))
 $$;
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to anon, authenticated;
+
+alter table public.admins enable row level security;
+revoke all on public.admins from anon, authenticated;
+grant select, insert, delete on public.admins to authenticated;
+drop policy if exists "Admin sieht Team" on public.admins;
+create policy "Admin sieht Team" on public.admins for select to authenticated using (public.is_admin());
+drop policy if exists "Admin fügt hinzu" on public.admins;
+create policy "Admin fügt hinzu" on public.admins for insert to authenticated with check (public.is_admin());
+drop policy if exists "Admin entfernt" on public.admins;
+create policy "Admin entfernt" on public.admins for delete to authenticated using (public.is_admin());
 
 alter table public.leads enable row level security;
 

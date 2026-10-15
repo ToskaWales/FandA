@@ -43,6 +43,17 @@
     </div>
     <p class="a-muted" id="state" role="status"></p>
     <ul class="a-list" id="list"></ul>
+
+    <section class="a-team" aria-labelledby="team-h">
+      <h2 id="team-h">Team</h2>
+      <p class="a-muted">Diese Personen dürfen sich hier anmelden. Das Konto selbst legst du in Supabase unter Authentication &rarr; Users an.</p>
+      <ul class="a-members" id="members"></ul>
+      <form id="addadmin" class="a-add" novalidate>
+        <div class="field"><label class="cap" for="n-email">E-Mail hinzufügen</label><input id="n-email" type="email" autocomplete="off" required></div>
+        <button class="btn out" type="submit">Hinzufügen</button>
+      </form>
+      <p class="a-error" id="teamerr" role="alert" hidden></p>
+    </section>
   </section>
   <noscript><p class="a-card">Diese Seite braucht JavaScript.</p></noscript>
 </main>
