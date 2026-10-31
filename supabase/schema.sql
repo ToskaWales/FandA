@@ -23,7 +23,7 @@ create index if not exists leads_created_idx on public.leads (created_at desc);
 -- Wer die Admin-Seite nutzen darf: Tabelle "admins" (wird auch auf der Admin-Seite unter "Team" verwaltet).
 create table if not exists public.admins (
   email text primary key check (email = lower(email) and char_length(email) between 3 and 254)
-);
+); 
 insert into public.admins (email) values ('franz.dippel@fasalesconsulting.com') on conflict do nothing;
 
 create or replace function public.is_admin() returns boolean
