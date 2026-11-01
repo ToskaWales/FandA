@@ -74,11 +74,11 @@ Grundlage ist der Bauplan „Recruiting-CRM mit Meta-Ads-Anbindung“ (Stand 01.
    # ab KI: ANTHROPIC_API_KEY (optional AI_MODEL)    ab Bot-Schutz: TURNSTILE_SECRET (+ TURNSTILE_SITE_KEY in js/config.js)
    ```
 7. **Zeitpläne:** Database → Extensions: `pg_cron`, `pg_net`, `supabase_vault` an. Dann `supabase/manual/005_cron.sql` mit eingesetztem Projekt-Ref und `CRON_SECRET` ausführen (`meta-sync-daily` und `weekly-ad-report` erst, wenn die Meta- bzw. KI-Secrets gesetzt sind).
-8. **Recruiter anlegen:** CRM → Betreuer → Person anlegen (mit E-Mail) → „Zum Login einladen“. Der Link-Code entsteht automatisch.
+8. **Recruiter anlegen:** CRM → Team → Person anlegen (mit E-Mail) → „Zugang per E-Mail schicken“. Der Link-Code entsteht automatisch. Admins anlegen darf nur der Inhaber.
 9. **Erst danach** die Website-Änderungen auf GitHub veröffentlichen: Die Formulare brauchen `submit-lead`, die Admin-Seite braucht das neue Schema.
 
 ### Meta, KI, Livegang
-- Meta-App, Webhook, Berechtigungen, App Review: Checkliste in Bauplan 4.3 (früh beantragen, dauert). Anzeigen bekommen ihren Recruiter/Creator über den Namen: `[ref:<link-code>] [cr:<creator-code>]` (Codes zum Kopieren auf den Seiten Betreuer/Creators).
+- Meta-App, Webhook, Berechtigungen, App Review: Checkliste in Bauplan 4.3 (früh beantragen, dauert). Anzeigen bekommen ihren Recruiter/Creator über den Namen: `[ref:<link-code>] [cr:<creator-code>]` (Codes zum Kopieren auf den Seiten Team/Models).
 - Vor dem Livegang (Bauplan Schritt 9): Turnstile an, Backups/PITR an, Datenschutzerklärung um Meta, Anthropic und Turnstile ergänzen (Hinweis als Kommentar in `datenschutz.html`), AV-Verträge, RLS mit zwei Recruiter-Konten durchklicken, einmal `erase_lead` mit Testdaten.
 
 ### Testen ohne Supabase

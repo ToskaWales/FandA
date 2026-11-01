@@ -84,13 +84,6 @@
       if (r) CRM.run(cb, async () => { await CRM.rpc('correct_lead_creator', { p_lead_id: l.id, p_creator_id: cs.value || null, p_reason: r.reason }); CRM.refresh(); }, 'Model geändert ✓');
     }, 'ghost sm');
     box.append(h('div', null, h('label', { style: 'font-weight:600;font-size:14px' }, 'Model dieses Leads'), h('div', 'row', { style: 'margin-top:6px' }, h('div', { style: 'flex:1 1 160px' }, cs), cb)));
-    if (l.status === 'paid' && !l.converted_profile_id) {
-      const sb = CRM.btn('Als Setter ins Team übernehmen', () => CRM.run(sb, async () => {
-        const p = await CRM.insert('profiles', { role: 'setter', full_name: CRM.name(l), email: l.email, phone: l.phone });
-        await CRM.patch('leads', l.id, { converted_profile_id: p.id }); CRM.clearCache(); CRM.go('team', p.id);
-      }, 'Als Setter angelegt ✓'), 'ghost sm');
-      box.append(h('div', null, sb));
-    } else if (l.converted_profile_id) box.append(h('a', { href: '#team/' + l.converted_profile_id }, 'Ist als Setter im Team →'));
   };
 
   // ---------- Einzahlungen prüfen ----------

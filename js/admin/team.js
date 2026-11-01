@@ -1,7 +1,8 @@
-/* CRM: Team (Admin, Recruiter, Setter, Closer) anlegen, bearbeiten, einladen, deaktivieren, anonymisieren. */
+/* CRM: Team (Recruiter, Admins) anlegen, bearbeiten, einladen, deaktivieren, anonymisieren.
+   Setter und Closer arbeiten in einem eigenen CRM; die Rollen gibt es in der Datenbank noch, hier werden sie nicht angeboten. */
 (() => {
   const { h } = CRM;
-  const ROLE = { recruiter: 'Recruiter', setter: 'Setter', closer: 'Closer', admin: 'Admin' };
+  const ROLE = { recruiter: 'Recruiter', admin: 'Admin' };
   let roleFilter = 'recruiter';
 
   // Admins anlegen und ändern darf nur der Inhaber (die Datenbank erzwingt das, siehe 000500_owner.sql).
@@ -78,9 +79,9 @@
           acts.length ? h('div', 'row', { style: 'padding-top:14px;border-top:1px solid var(--line-2)' }, acts) : null));
         panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       };
-      v.append(CRM.head('Team', 'Alle Personen im System. Recruiter bekommen einen persönlichen Link und einen Zugang zum CRM. Setter und Closer werden hier nur geführt.',
+      v.append(CRM.head('Team', 'Alle, die mit dem CRM arbeiten. Recruiter bekommen einen persönlichen Link und einen Zugang. Admins verwalten alles.',
         CRM.btn('Person anlegen', () => open({}), '', 'plus')),
-        CRM.pills([['recruiter', 'Recruiter'], ['setter', 'Setter'], ['closer', 'Closer'], ['admin', 'Admins'], ['', 'Alle']], roleFilter, (k) => { roleFilter = k; CRM.refresh(); }),
+        CRM.pills([['recruiter', 'Recruiter'], ['admin', 'Admins']], roleFilter, (k) => { roleFilter = k; CRM.refresh(); }),
         panel,
         CRM.table([
           { t: 'Name', cls: 'main', v: (p) => h('span', null, p.full_name, h('small', null, [p.is_owner ? 'Inhaber' : ROLE[p.role], p.active ? null : 'deaktiviert'].filter(Boolean).join(' · '))) },

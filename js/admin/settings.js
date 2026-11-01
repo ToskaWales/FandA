@@ -38,7 +38,7 @@
 
   // ---------- Einstellungen ----------
   const LABEL = {
-    payment_amount_eur: ['Einzahlung des Bewerbers', 'EUR', 'So viel überweist ein neuer Setter.'],
+    payment_amount_eur: ['Einzahlung des Bewerbers', 'EUR', 'So viel überweist ein neuer Bewerber.'],
     recruiter_reward_eur: ['Provision für den Recruiter', 'EUR', 'Pro bestätigter Einzahlung.'],
     creator_rate: ['Anteil des Models', '%', 'Von der Einzahlung, für das Model in der Anzeige. Einzelne Models können abweichen (Seite Models).'],
   };

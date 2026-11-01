@@ -220,7 +220,7 @@
         h('div', 'spread', h('h2', null, 'Wie weit ist der Lead?'), lostBtn),
         lost ? CRM.note('', h('span', null, h('strong', null, 'Verloren: '), l.lost_reason || 'ohne Grund'), h('span', 'soft', 'Zum Wiederaufnehmen unten einen Schritt anklicken.')) : null,
         steps,
-        paid ? h('p', 'soft', { style: 'margin-top:10px' }, `Bezahlt am ${CRM.day(l.closed_at)}${l.closer ? ' · geclosed von ' + l.closer.full_name : ''}.`)
+        paid ? h('p', 'soft', { style: 'margin-top:10px' }, `Bezahlt am ${CRM.day(l.closed_at)}${l.closer ? ' · abgeschlossen von ' + l.closer.full_name : ''}.`)
           : h('p', 'soft', { style: 'margin-top:10px;font-size:14px' }, '„Bezahlt“ setzt sich von selbst, sobald der Admin die Einzahlung bestätigt.')));
 
       // Rückruf
