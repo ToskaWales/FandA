@@ -1,54 +1,62 @@
-/* CRM: Zahlungen, Auszahlungsliste, Provisionen, Geld-Teil des Lead-Details, "Meine Provision".
-   Nur sichtbar mit MONEY_ENABLED in js/config.js (erst nach der anwaltlichen Prüfung, Bauplan P2). */
+/* CRM: Einzahlungen, Auszahlen, Buchungen, Geld-Teil der Lead-Seite, "Mein Geld".
+   Sichtbar nur mit MONEY_ENABLED in js/config.js (Bauplan P2). */
 (() => {
   const { h } = CRM;
-  const PAY = { reported: 'Gemeldet', confirmed: 'Bestätigt', rejected: 'Abgelehnt', reversed: 'Storniert' };
+  const PAY = { reported: ['Gemeldet, wartet auf Prüfung', 'warn'], confirmed: ['Bestätigt', 'ok'], rejected: ['Abgelehnt', 'off'], reversed: ['Storniert', 'bad'] };
   const COM = { open: 'Offen', paid_out: 'Ausgezahlt', cancelled: 'Storniert', settled: 'Erledigt' };
-  const proofBtn = (path) => path ? h('button', { class: 'a-link', type: 'button', on: { click: async () => {
-    const url = await CRM.run(null, () => CRM.signedUrl('payment-proofs', path)); if (url) window.open(url, '_blank', 'noopener');
-  } } }, 'Beleg') : '–';
+  const payChip = (s) => CRM.chip(PAY[s][0], PAY[s][1]);
+  const proofBtn = (path) => path ? CRM.btn('Beleg ansehen', async (e) => {
+    const url = await CRM.run(e.currentTarget, () => CRM.signedUrl('payment-proofs', path)); if (url) window.open(url, '_blank', 'noopener');
+  }, 'soft sm') : null;
 
-  const decide = (p) => {
-    const box = h('div', 'a-inline');
-    const act = (label, cls, fn, ok) => {
-      const b = h('button', { class: cls, type: 'button' }, label);
-      b.addEventListener('click', () => CRM.run(b, async () => { if (await fn() !== false) CRM.refresh(); }, ok));
-      box.append(b);
-    };
+  // Bestätigen / Ablehnen / Stornieren mit eigenem Fenster
+  const decide = (p, who) => {
+    const out = [];
     if (p.status === 'reported') {
-      act('Bestätigen', 'btn sm', () => CRM.rpc('confirm_payment', { p_payment_id: p.id }), 'Bestätigt: Lead ist geclosed, Provisionen sind angelegt.');
-      act('Ablehnen', 'btn out sm', async () => {
-        const r = window.prompt('Grund der Ablehnung:'); if (!r) return false;
-        return CRM.rpc('reject_payment', { p_payment_id: p.id, p_reason: r });
-      }, 'Abgelehnt.');
+      const ok = CRM.btn('Geld ist da – bestätigen', async () => {
+        if (!await CRM.confirm('Einzahlung bestätigen?', `${CRM.eur(p.amount)} von ${who} sind auf dem Konto eingegangen. Danach gilt der Lead als abgeschlossen, und die Provisionen werden gebucht.`, 'Ja, bestätigen')) return;
+        CRM.run(ok, async () => { await CRM.rpc('confirm_payment', { p_payment_id: p.id }); CRM.refresh(); }, 'Bestätigt ✓ Provisionen sind gebucht.');
+      }, 'green sm', 'check');
+      const no = CRM.btn('Ablehnen', async () => {
+        const r = await CRM.ask({ title: 'Einzahlung ablehnen?', text: 'Zum Beispiel, wenn kein Geld angekommen ist. Der Recruiter kann danach neu melden.', ok: 'Ablehnen', danger: true,
+          fields: [{ name: 'reason', label: 'Grund', placeholder: 'z. B. Kein Zahlungseingang', required: true }] });
+        if (r) CRM.run(no, async () => { await CRM.rpc('reject_payment', { p_payment_id: p.id, p_reason: r.reason }); CRM.refresh(); }, 'Abgelehnt.');
+      }, 'soft sm');
+      out.push(ok, no);
     }
     if (p.status === 'confirmed') {
-      act('Stornieren', 'btn out sm', async () => {
-        const r = window.prompt('Grund des Stornos (z. B. Rückbuchung der Bank):'); if (!r) return false;
-        return CRM.rpc('reverse_payment', { p_payment_id: p.id, p_reason: r });
-      }, 'Storniert. Ausgezahlte Provisionen stehen jetzt als Rückforderung offen.');
+      const rev = h('button', { type: 'button', class: 'link link--danger', on: { click: async () => {
+        const r = await CRM.ask({ title: 'Einzahlung stornieren?', text: 'Nur wenn das Geld zurückging (z. B. Rückbuchung der Bank). Noch nicht ausgezahlte Provisionen fallen weg; schon ausgezahlte erscheinen als „zu viel ausgezahlt“.',
+          ok: 'Stornieren', danger: true, fields: [{ name: 'reason', label: 'Grund', placeholder: 'z. B. Rückbuchung der Bank am …', required: true }] });
+        if (r) CRM.run(rev, async () => { await CRM.rpc('reverse_payment', { p_payment_id: p.id, p_reason: r.reason }); CRM.refresh(); }, 'Storniert.');
+      } } }, 'Stornieren');
+      out.push(rev);
     }
-    return box;
+    return out;
   };
 
-  // ---------- Geld-Teil im Lead-Detail (wird von leads.js aufgerufen) ----------
-  CRM.leadMoney = async (v, l, section) => {
+  // ---------- Geld-Teil auf der Lead-Seite ----------
+  CRM.leadMoney = async (side, l) => {
     const admin = CRM.role === 'admin';
-    const pays = await CRM.api(`payments?lead_id=eq.${l.id}&select=*,reporter:profiles!payments_reported_by_fkey(full_name),confirmer:profiles!payments_confirmed_by_fkey(full_name)&order=created_at.desc`);
-    const kids = [CRM.table([
-      { t: 'Status', v: (p) => PAY[p.status] }, { t: 'Betrag', v: (p) => CRM.eur(p.amount), cls: 'num' },
-      { t: 'Überwiesen am', v: (p) => CRM.day(p.paid_on) }, { t: 'Referenz', v: (p) => p.reference || '–' }, { t: 'Beleg', v: (p) => proofBtn(p.proof_path) },
-      { t: 'Gemeldet', v: (p) => `${CRM.fmt(p.reported_at)}${p.reporter ? ' · ' + p.reporter.full_name : ''}` },
-      { t: 'Entscheidung', v: (p) => p.confirmed_at ? `${CRM.fmt(p.confirmed_at)} · ${p.confirmer?.full_name || ''}` : (p.decision_note || '–') },
-      admin ? { t: '', v: decide } : null,
-    ].filter(Boolean), pays, { empty: 'Noch keine Zahlung gemeldet.' })];
+    const [pays, setting] = await Promise.all([
+      CRM.api(`payments?lead_id=eq.${l.id}&select=*,reporter:profiles!payments_reported_by_fkey(full_name)&order=created_at.desc`),
+      CRM.api('app_settings?key=eq.payment_amount_eur&select=value').catch(() => []),
+    ]);
+    const amount = setting[0]?.value;
+    const card = h('section', 'card', h('h2', null, `Einzahlung${amount ? ' (' + CRM.eur(amount) + ')' : ''}`));
+    const active = pays.find((p) => ['reported', 'confirmed'].includes(p.status));
+    pays.forEach((p) => card.append(h('div', 'stack', { style: 'margin-top:12px;padding-top:12px;border-top:1px solid var(--line-2)' },
+      h('div', 'spread', payChip(p.status), h('strong', null, CRM.eur(p.amount))),
+      CRM.facts([['Überwiesen am', CRM.day(p.paid_on)], ['Verwendungszweck', p.reference], ['Gemeldet', `${CRM.when(p.reported_at)}${p.reporter ? ' von ' + p.reporter.full_name : ''}`], ['Grund', p.decision_note]]),
+      h('div', 'row', proofBtn(p.proof_path), admin ? decide(p, CRM.name(l)) : null))));
 
-    if (!pays.some((p) => ['reported', 'confirmed'].includes(p.status)) && l.recruiter_id) {
-      const day = CRM.input({ type: 'date', value: CRM.isoDay() });
-      const ref = CRM.input({ placeholder: 'Verwendungszweck / Transaktions-Referenz' });
+    if (!active && l.status !== 'lost') {
+      if (!l.recruiter_id) { card.append(h('p', 'soft', { style: 'margin-top:8px' }, 'Erst einen Recruiter zuteilen, dann kann die Einzahlung gemeldet werden.')); side.append(card); return; }
+      const day = CRM.input({ type: 'date', value: CRM.isoDay() }), ref = CRM.input({ placeholder: 'wie auf dem Kontoauszug' });
       const file = h('input', { type: 'file', accept: 'image/*,application/pdf' });
-      const b = h('button', { class: 'btn', type: 'submit' }, 'Zahlung melden');
-      const f = h('form', { class: 'a-form', novalidate: true }, h('div', 'a-grid2', CRM.field('Überwiesen am', day), CRM.field('Referenz', ref)), CRM.field('Beleg (optional)', file), b);
+      const b = h('button', { class: 'btn', type: 'submit' }, 'Einzahlung melden');
+      const f = h('form', { class: 'stack', novalidate: true, hidden: true }, CRM.field('Überwiesen am', day), CRM.field('Verwendungszweck', ref), CRM.field('Foto/PDF vom Beleg (optional)', file), h('div', null, b));
+      const open = CRM.btn('Kunde hat überwiesen', () => { f.hidden = false; open.hidden = true; day.focus(); }, 'ghost');
       f.addEventListener('submit', (e) => {
         e.preventDefault();
         CRM.run(b, async () => {
@@ -59,188 +67,177 @@
           }
           await CRM.rpc('report_payment', { p_lead_id: l.id, p_paid_on: day.value || null, p_reference: ref.value.trim() || null, p_proof_path: path });
           CRM.refresh();
-        }, admin ? 'Gemeldet. Jetzt oben bestätigen.' : 'Gemeldet. Der Admin prüft den Zahlungseingang.');
+        }, admin ? 'Gemeldet. Jetzt noch bestätigen.' : 'Gemeldet ✓ Der Admin prüft den Eingang.');
       });
-      kids.push(f);
+      card.append(h('p', 'soft', { style: 'margin:8px 0 12px' }, pays.length ? 'Neue Einzahlung melden:' : 'Noch keine Einzahlung gemeldet.'), open, f);
     }
-
-    if (admin) {
-      const cres = await CRM.creators();
-      const cs = CRM.select([['', '(kein Creator)'], ...cres.map((c) => [c.id, c.name])], l.creator_id);
-      const cb = h('button', { class: 'btn out sm', type: 'button' }, 'Creator korrigieren');
-      cb.addEventListener('click', () => CRM.run(cb, async () => {
-        if ((cs.value || null) === (l.creator_id || null)) throw new Error('Das ist schon der eingetragene Creator.');
-        const r = window.prompt('Grund der Korrektur:'); if (!r) return;
-        await CRM.rpc('correct_lead_creator', { p_lead_id: l.id, p_creator_id: cs.value || null, p_reason: r }); CRM.refresh();
-      }, 'Creator korrigiert, Provisionen angepasst.'));
-      kids.push(h('div', 'a-inline', CRM.field('Creator dieses Leads', cs), cb));
-
-      if (l.status === 'paid' && !l.converted_profile_id) {
-        const sb = h('button', { class: 'btn out sm', type: 'button' }, 'Als Setter anlegen');
-        sb.addEventListener('click', () => CRM.run(sb, async () => {
-          const p = await CRM.insert('profiles', { role: 'setter', full_name: CRM.name(l), email: l.email, phone: l.phone });
-          await CRM.patch('leads', l.id, { converted_profile_id: p.id }); CRM.clearCache(); CRM.go('team', p.id);
-        }, 'Setter angelegt.'));
-        kids.push(sb);
-      } else if (l.converted_profile_id) kids.push(h('p', null, h('a', { href: '#team/' + l.converted_profile_id }, 'Ist als Setter angelegt →')));
-    }
-    v.append(section('Zahlung', ...kids));
+    side.append(card);
   };
 
-  // ---------- Zahlungen (Admin) ----------
+  // "Weitere Aktionen" auf der Lead-Seite (Admin)
+  CRM.leadMoreActions = async (box, l) => {
+    const cres = await CRM.creators();
+    const cs = CRM.select([['', '(kein Model)'], ...cres.map((c) => [c.id, c.name])], l.creator_id, { 'aria-label': 'Model' });
+    const cb = CRM.btn('Ändern', async () => {
+      if ((cs.value || null) === (l.creator_id || null)) { CRM.flash('Das ist schon das eingetragene Model.', true); return; }
+      const r = await CRM.ask({ title: 'Model ändern?', text: 'Schon gebuchte Provisionen werden automatisch korrigiert.', ok: 'Ändern', fields: [{ name: 'reason', label: 'Grund', required: true, placeholder: 'z. B. falsches Model eingetragen' }] });
+      if (r) CRM.run(cb, async () => { await CRM.rpc('correct_lead_creator', { p_lead_id: l.id, p_creator_id: cs.value || null, p_reason: r.reason }); CRM.refresh(); }, 'Model geändert ✓');
+    }, 'ghost sm');
+    box.append(h('div', null, h('label', { style: 'font-weight:600;font-size:14px' }, 'Model dieses Leads'), h('div', 'row', { style: 'margin-top:6px' }, h('div', { style: 'flex:1 1 160px' }, cs), cb)));
+    if (l.status === 'paid' && !l.converted_profile_id) {
+      const sb = CRM.btn('Als Setter ins Team übernehmen', () => CRM.run(sb, async () => {
+        const p = await CRM.insert('profiles', { role: 'setter', full_name: CRM.name(l), email: l.email, phone: l.phone });
+        await CRM.patch('leads', l.id, { converted_profile_id: p.id }); CRM.clearCache(); CRM.go('team', p.id);
+      }, 'Als Setter angelegt ✓'), 'ghost sm');
+      box.append(h('div', null, sb));
+    } else if (l.converted_profile_id) box.append(h('a', { href: '#team/' + l.converted_profile_id }, 'Ist als Setter im Team →'));
+  };
+
+  // ---------- Einzahlungen prüfen ----------
   let payFilter = 'reported';
   CRM.page({
-    id: 'payments', title: 'Zahlungen', roles: ['admin'], money: true,
+    id: 'payments', title: 'Einzahlungen prüfen', label: 'Einzahlungen', group: 'Geld', icon: 'money', roles: ['admin'], money: true, tab: 4, tabLabel: 'Geld',
+    badge: () => CRM.count('payments?status=eq.reported'),
     async render(v) {
-      const rows = await CRM.api(`payments?select=*,lead:leads(id,lead_code,first_name,last_name,attribution_unconfirmed,recruiter:profiles!leads_recruiter_id_fkey(full_name))${payFilter ? '&status=eq.' + payFilter : ''}&order=reported_at.desc&limit=300`);
-      v.append(h('h1', null, 'Zahlungen'),
-        h('p', 'a-muted', 'Bestätigen erst nach Eingang auf dem Konto. Dann gilt der Lead als geclosed, und die Provisionen werden angelegt.'),
-        CRM.tabs([['reported', 'Zu prüfen'], ['confirmed', 'Bestätigt'], ['rejected', 'Abgelehnt'], ['reversed', 'Storniert'], ['', 'Alle']], payFilter, (k) => { payFilter = k; CRM.refresh(); }),
-        CRM.table([
-          { t: 'Lead', v: (p) => h('a', { href: '#lead/' + p.lead.id }, `${p.lead.lead_code} · ${CRM.name(p.lead)}`) },
-          { t: 'Betreuer', v: (p) => p.lead.recruiter?.full_name || h('span', 'a-error', 'keiner') },
-          { t: 'Betrag', v: (p) => CRM.eur(p.amount), cls: 'num' },
-          { t: 'Überwiesen am', v: (p) => CRM.day(p.paid_on) },
-          { t: 'Referenz', v: (p) => p.reference || '–' },
-          { t: 'Beleg', v: (p) => proofBtn(p.proof_path) },
-          { t: 'Status', v: (p) => h('span', null, PAY[p.status], p.lead.attribution_unconfirmed && p.status === 'reported' ? CRM.badge('Zuordnung prüfen', 'warn') : null) },
-          { t: '', v: decide },
-        ], rows, { empty: payFilter === 'reported' ? 'Keine Zahlungen zu prüfen.' : 'Keine Einträge.' }));
+      const rows = await CRM.api(`payments?select=*,reporter:profiles!payments_reported_by_fkey(full_name),lead:leads(id,lead_code,first_name,last_name,attribution_unconfirmed,recruiter:profiles!leads_recruiter_id_fkey(full_name))${payFilter ? '&status=eq.' + payFilter : ''}&order=reported_at.desc&limit=300`);
+      v.append(CRM.head('Einzahlungen prüfen', 'Recruiter melden hier, dass ein Bewerber überwiesen hat. Schau aufs Konto: Ist das Geld da, bestätige. Dann ist der Lead abgeschlossen und die Provisionen sind gebucht.'),
+        CRM.pills([['reported', 'Zu prüfen'], ['confirmed', 'Bestätigt'], ['rejected', 'Abgelehnt'], ['reversed', 'Storniert'], ['', 'Alle']], payFilter, (k) => { payFilter = k; CRM.refresh(); }));
+      if (!rows.length) { v.append(payFilter === 'reported' ? h('div', 'card done-all', h('span', 'ok', CRM.icon('check')), h('div', null, h('h2', null, 'Nichts zu prüfen'), h('p', 'soft', 'Alle gemeldeten Einzahlungen sind erledigt.'))) : CRM.empty('Keine Einträge.')); return; }
+      v.append(h('div', 'cards', rows.map((p) => h('article', 'card person',
+        h('div', 'spread', h('a', { href: '#lead/' + p.lead.id, style: 'font-weight:700;font-size:17px' }, CRM.name(p.lead)), payChip(p.status)),
+        h('div', 'amount', CRM.eur(p.amount)),
+        CRM.facts([['Überwiesen am', CRM.day(p.paid_on)], ['Verwendungszweck', p.reference || '–'], ['Recruiter', p.lead.recruiter?.full_name || CRM.chip('keiner', 'bad')], ['Gemeldet', CRM.when(p.reported_at)], ['Grund', p.decision_note]]),
+        p.lead.attribution_unconfirmed && p.status === 'reported' ? CRM.note('', h('span', null, 'Erst die Zuordnung prüfen: ', h('a', { href: '#lead/' + p.lead.id }, 'Lead öffnen'))) : null,
+        h('div', 'row', proofBtn(p.proof_path), decide(p, CRM.name(p.lead)))))));
     },
   });
 
-  // ---------- Auszahlungsliste (Admin) ----------
-  let payoutType = 'recruiter', onlyOpen = true;
+  // ---------- Auszahlen ----------
+  let payoutType = 'recruiter';
   CRM.page({
-    id: 'payouts', title: 'Auszahlungen', roles: ['admin'], money: true,
+    id: 'payouts', title: 'Auszahlen', group: 'Geld', icon: 'payout', roles: ['admin'], money: true,
     async render(v) {
-      let rows = await CRM.api(`v_payout_list?person_type=eq.${payoutType}&order=open_amount.desc`);
-      if (onlyOpen) rows = rows.filter((r) => Number(r.open_amount) !== 0);
+      const [all, recent] = await Promise.all([
+        CRM.api(`v_payout_list?person_type=eq.${payoutType}&order=open_amount.desc`),
+        CRM.api('payouts?select=*,recruiter:profiles!payouts_recruiter_id_fkey(full_name),creator:creators(name)&order=created_at.desc&limit=15'),
+      ]);
+      const rows = all.filter((r) => Number(r.open_amount) !== 0 || Number(r.open_lines));
       const sum = rows.reduce((s, r) => s + Math.max(0, Number(r.open_amount)), 0);
-      const recent = await CRM.api(`payouts?select=*,recruiter:profiles!payouts_recruiter_id_fkey(full_name),creator:creators(name)&order=created_at.desc&limit=20`);
+      const who = payoutType === 'recruiter' ? 'Recruiter' : 'Models';
 
-      const lines = async (r, box) => {
-        const col = payoutType === 'recruiter' ? 'recruiter_id' : 'creator_id';
-        const ls = await CRM.api(`commissions?${col}=eq.${r.person_id}&type=eq.${payoutType}&status=eq.open&select=amount,created_at,lead:leads(id,lead_code,first_name,last_name)&order=created_at`);
-        box.replaceChildren(CRM.table([
-          { t: 'Lead', v: (c) => h('a', { href: '#lead/' + c.lead.id }, `${c.lead.lead_code} · ${CRM.name(c.lead)}`) },
-          { t: 'Betrag', v: (c) => CRM.eur(c.amount), cls: 'num' }, { t: 'Gebucht', v: (c) => CRM.day(c.created_at) },
-        ], ls));
+      const person = (r) => {
+        const amt = Number(r.open_amount);
+        const lines = h('div');
+        const det = h('details', null, h('summary', { style: 'cursor:pointer;font-weight:600;font-size:14px' }, `Für welche Leads? (${r.onboarded_open})`), lines);
+        det.addEventListener('toggle', async () => {
+          if (!det.open || lines.childNodes.length) return;
+          const col = payoutType === 'recruiter' ? 'recruiter_id' : 'creator_id';
+          const ls = await CRM.api(`commissions?${col}=eq.${r.person_id}&type=eq.${payoutType}&status=eq.open&select=amount,lead:leads(id,lead_code,first_name,last_name)&order=created_at`);
+          lines.replaceChildren(h('ul', { style: 'margin:8px 0 0;padding-left:18px' }, ls.map((c) => h('li', null, h('a', { href: '#lead/' + c.lead.id }, CRM.name(c.lead)), ` · ${CRM.eur(c.amount)}`))));
+        });
+        let action;
+        if (amt < 0) action = CRM.note('', h('span', null, `Es wurde ${CRM.eur(-amt)} zu viel ausgezahlt (Einzahlung später storniert).`), h('a', { class: 'btn btn--sm', href: '#commissions/claw' }, 'Klären'));
+        else if (amt > 0) {
+          const b = CRM.btn(`${CRM.eur(amt)} überwiesen`, async () => {
+            const res = await CRM.ask({ title: `${r.person_name} auszahlen`, text: `Bitte zuerst ${CRM.eur(amt)} an ${r.iban || '(IBAN fehlt!)'} überweisen. Dann hier abhaken.`, ok: 'Ist überwiesen ✓',
+              fields: [{ name: 'ref', label: 'Verwendungszweck', value: `Provision ${new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}` }] });
+            if (res) CRM.run(b, async () => { await CRM.rpc('pay_person', { p_person_type: payoutType, p_person_id: r.person_id, p_expected_total: r.open_amount, p_reference: res.ref || null }); CRM.refresh(); }, 'Abgehakt ✓');
+          }, 'green', 'check');
+          action = b;
+        } else action = h('p', 'soft', 'Gleicht sich aus (0 €). Einfach abhaken: ', h('button', { type: 'button', class: 'link', on: { click: () => CRM.run(null, async () => { await CRM.rpc('pay_person', { p_person_type: payoutType, p_person_id: r.person_id, p_expected_total: r.open_amount }); CRM.refresh(); }, 'Erledigt ✓') } }, 'Erledigt'));
+        return h('article', 'card person',
+          h('div', 'spread', h('h3', null, r.person_name), CRM.chip(`${r.onboarded_open} neu`, 'new')),
+          h('div', 'amount', CRM.eur(amt)),
+          CRM.facts([['IBAN', r.iban || CRM.chip('fehlt – im Team eintragen', 'bad')], ['Bisher ausgezahlt', CRM.eur(r.paid_out_total)], ['Zuletzt', CRM.day(r.last_paid_at)], ['Insgesamt geworben', String(r.onboarded_total)]]),
+          det, action);
       };
-      const pay = (r) => {
-        if (Number(r.open_amount) < 0) return h('a', { href: '#commissions' }, 'Rückforderung klären');
-        if (Number(r.open_amount) === 0 && !Number(r.open_lines)) return '–';
-        const b = h('button', { class: 'btn sm', type: 'button' }, 'Bezahlt ✓');
-        b.addEventListener('click', () => CRM.run(b, async () => {
-          const ref = window.prompt(`${CRM.eur(r.open_amount)} an ${r.person_name} als überwiesen abhaken.\nVerwendungszweck (optional):`, `Provision ${new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}`);
-          if (ref === null) return;
-          await CRM.rpc('pay_person', { p_person_type: payoutType, p_person_id: r.person_id, p_expected_total: r.open_amount, p_reference: ref || null });
-          CRM.refresh();
-        }, 'Abgehakt.'));
-        return b;
-      };
-      const table = CRM.table([
-        { t: 'Name', v: (r) => r.person_name },
-        { t: 'IBAN', v: (r) => r.iban || h('span', 'a-error', 'fehlt') },
-        { t: 'Onboardet', v: (r) => `${r.onboarded_total} (neu ${r.onboarded_open})`, cls: 'num' },
-        { t: 'Offen', v: (r) => h('strong', null, CRM.eur(r.open_amount)), cls: 'num' },
-        { t: 'Ausgezahlt', v: (r) => CRM.eur(r.paid_out_total), cls: 'num' },
-        { t: 'Zuletzt', v: (r) => CRM.day(r.last_paid_at) },
-        { t: 'Zeilen', v: (r) => { const box = h('div'); return h('details', { on: { toggle: (e) => { if (e.target.open && !box.childNodes.length) lines(r, box); } } }, h('summary', null, `${r.open_lines} offen`), box); } },
-        { t: '', v: pay },
-      ], rows, { empty: 'Nichts offen.' });
-      const exportBtn = h('button', { class: 'btn out sm', type: 'button', on: { click: () => CRM.csv(`auszahlung-${payoutType}-${CRM.isoDay()}.csv`,
-        [['Name', 'IBAN', 'Betrag', 'Onboardet neu'], ...rows.filter((r) => Number(r.open_amount) > 0).map((r) => [r.person_name, r.iban, String(r.open_amount).replace('.', ','), r.onboarded_open])]) } }, 'CSV für Überweisung');
-      const undo = (p) => {
-        if (p.voided_at) return h('span', 'a-muted', `zurückgenommen: ${p.void_reason}`);
-        const b = h('button', { class: 'a-link', type: 'button' }, 'Zurücknehmen');
-        b.addEventListener('click', () => CRM.run(b, async () => {
-          const r = window.prompt('Warum zurücknehmen (z. B. versehentlich abgehakt)?'); if (!r) return;
-          await CRM.rpc('undo_payout', { p_payout_id: p.id, p_reason: r }); CRM.refresh();
-        }, 'Zurückgenommen, die Zeilen sind wieder offen.'));
-        return b;
-      };
-      const only = h('input', { type: 'checkbox', checked: onlyOpen, on: { change: (e) => { onlyOpen = e.target.checked; CRM.refresh(); } } });
-      v.append(h('div', 'a-head', h('h1', null, 'Auszahlungen'), h('span', 'a-sum', `Offen gesamt: ${CRM.eur(sum)}`)),
-        h('p', 'a-muted', 'Überweisen außerhalb des Systems, danach je Person abhaken. Hat sich der Betrag inzwischen geändert, bricht das Abhaken mit einer Meldung ab.'),
-        CRM.tabs([['recruiter', 'Recruiter'], ['creator', 'Models (Creator)']], payoutType, (k) => { payoutType = k; CRM.refresh(); }),
-        h('div', 'a-filters', h('label', 'a-check', only, ' nur mit offenem Betrag'), exportBtn), table,
-        h('h2', null, 'Letzte Auszahlungen'),
+
+      const undo = (p) => p.voided_at ? CRM.chip('zurückgenommen', 'off') : h('button', { type: 'button', class: 'link', on: { click: async (e) => {
+        const r = await CRM.ask({ title: 'Haken zurücknehmen?', text: 'Nur wenn du versehentlich abgehakt hast. Der Betrag erscheint dann wieder als offen.', ok: 'Zurücknehmen', fields: [{ name: 'reason', label: 'Grund', required: true, placeholder: 'z. B. versehentlich abgehakt' }] });
+        if (r) CRM.run(e.target, async () => { await CRM.rpc('undo_payout', { p_payout_id: p.id, p_reason: r.reason }); CRM.refresh(); }, 'Zurückgenommen.');
+      } } }, 'Rückgängig');
+
+      v.append(CRM.head('Auszahlen', 'So viel bekommen Recruiter und Models für bestätigte Einzahlungen. Überweise den Betrag, dann klicke den grünen Knopf.',
+        rows.some((r) => Number(r.open_amount) > 0) ? CRM.btn('Liste für die Bank (CSV)', () => CRM.csv(`auszahlung-${payoutType}-${CRM.isoDay()}.csv`,
+          [['Name', 'IBAN', 'Betrag', 'Verwendungszweck'], ...rows.filter((r) => Number(r.open_amount) > 0).map((r) => [r.person_name, r.iban, String(r.open_amount).replace('.', ','), 'Provision'])]), 'ghost') : null),
+        CRM.pills([['recruiter', 'Recruiter'], ['creator', 'Models']], payoutType, (k) => { payoutType = k; CRM.refresh(); }),
+        rows.length ? h('div', null, h('p', { style: 'font-size:18px;margin-bottom:14px' }, 'Offen: ', h('strong', null, CRM.eur(sum))), h('div', 'cards', rows.map(person)))
+          : h('div', 'card done-all', h('span', 'ok', CRM.icon('check')), h('div', null, h('h2', null, 'Alles ausgezahlt'), h('p', 'soft', `Gerade ist für ${who} nichts offen.`))),
+        CRM.section('Zuletzt abgehakt'),
         CRM.table([
-          { t: 'Datum', v: (p) => CRM.day(p.paid_at) }, { t: 'Person', v: (p) => p.recruiter?.full_name || p.creator?.name || '–' },
-          { t: 'Betrag', v: (p) => CRM.eur(p.total), cls: 'num' }, { t: 'Referenz', v: (p) => p.reference || '–' }, { t: '', v: undo },
-        ], recent));
+          { t: 'Person', cls: 'main', v: (p) => p.recruiter?.full_name || p.creator?.name || '–' },
+          { t: 'Betrag', cls: 'num', v: (p) => CRM.eur(p.total) }, { t: 'Datum', v: (p) => CRM.day(p.paid_at) },
+          { t: 'Verwendungszweck', cls: 'hide-m', v: (p) => p.reference || '–' }, { t: '', cls: 'bare', v: undo },
+        ], recent, { empty: 'Noch nichts ausgezahlt.' }));
     },
   });
 
-  // ---------- Provisionen (Einzelzeilen, Sonderfälle, Creator-Lücken) ----------
+  // ---------- Buchungen (Sonderfälle) ----------
   let comTab = 'open';
   CRM.page({
-    id: 'commissions', title: 'Provisionen', roles: ['admin'], money: true,
-    async render(v) {
-      v.append(h('h1', null, 'Provisionen'),
-        CRM.tabs([['open', 'Offen'], ['claw', 'Rückforderungen'], ['gaps', 'Creator-Lücken'], ['all', 'Alle']], comTab, (k) => { comTab = k; CRM.refresh(); }));
+    id: 'commissions', title: 'Buchungen', group: 'Geld', icon: 'list', roles: ['admin'], money: true,
+    async render(v, arg) {
+      if (['open', 'claw', 'gaps', 'all'].includes(arg)) comTab = arg;
+      v.append(CRM.head('Buchungen', 'Jede einzelne Provision. Meist brauchst du diese Seite nicht: Ausgezahlt wird auf „Auszahlen“. Hier klärst du Sonderfälle.'),
+        CRM.pills([['open', 'Offen'], ['claw', 'Zu viel ausgezahlt'], ['gaps', 'Model fehlt'], ['all', 'Alle']], comTab, (k) => CRM.go('commissions', k)));
       if (comTab === 'gaps') {
         const gaps = await CRM.api('v_creator_gaps?select=*&order=confirmed_at.desc');
-        const b = h('button', { class: 'btn', type: 'button' }, 'Fehlende Creator-Provisionen nachtragen');
-        b.addEventListener('click', () => CRM.run(b, async () => { const n = await CRM.rpc('backfill_missing_commissions'); CRM.flash(`${n} Provision(en) nachgetragen.`); CRM.refresh(); }));
-        v.append(h('p', 'a-muted', '„Ad ohne Creator“: erst auf der Seite Ads den Creator eintragen, dann nachtragen.'), b,
+        const b = CRM.btn('Fehlende Model-Provisionen nachtragen', () => CRM.run(b, async () => { const n = await CRM.rpc('backfill_missing_commissions'); CRM.flash(`${n} nachgetragen ✓`); CRM.refresh(); }));
+        v.append(CRM.note('info', h('span', null, 'Bezahlte Leads aus einer Anzeige, für die (noch) keine Model-Provision gebucht ist. Steht „Anzeige ohne Model“: erst auf der Seite Anzeigen das Model eintragen, dann nachtragen.')), h('div', { style: 'height:14px' }),
+          gaps.length ? h('div', { style: 'margin-bottom:14px' }, b) : null,
           CRM.table([
-            { t: 'Lead', v: (g) => h('a', { href: '#lead/' + g.lead_id }, g.lead_code) },
-            { t: 'Problem', v: (g) => (g.problem === 'ad_ohne_creator' ? 'Ad ohne Creator' : 'Provision fehlt') },
-            { t: 'Bestätigt', v: (g) => CRM.fmt(g.confirmed_at) },
-          ], gaps, { empty: 'Keine Lücken.' }));
+            { t: 'Lead', cls: 'main', v: (g) => h('a', { href: '#lead/' + g.lead_id }, g.lead_code) },
+            { t: 'Problem', v: (g) => (g.problem === 'ad_ohne_creator' ? CRM.chip('Anzeige ohne Model', 'warn') : CRM.chip('Provision fehlt', 'warn')) },
+            { t: 'Bestätigt', v: (g) => CRM.when(g.confirmed_at) },
+          ], gaps, { empty: 'Alles in Ordnung.', emptyText: 'Kein bezahlter Lead ohne Model-Provision.' }));
         return;
       }
-      let q = 'commissions?select=*,lead:leads(id,lead_code),recruiter:profiles!commissions_recruiter_id_fkey(full_name),creator:creators(name)&order=created_at.desc&limit=500';
+      let q = 'commissions?select=*,lead:leads(id,lead_code,first_name,last_name),recruiter:profiles!commissions_recruiter_id_fkey(full_name),creator:creators(name)&order=created_at.desc&limit=500';
       if (comTab === 'open') q += '&status=eq.open';
       if (comTab === 'claw') q += '&status=eq.open&amount=lt.0';
       const rows = await CRM.api(q);
-      const picked = new Set();
       const settle = (c) => {
-        if (!(c.status === 'open' && Number(c.amount) < 0)) return c.settle_note ? h('span', 'a-muted', c.settle_note) : '';
-        const b = h('button', { class: 'btn out sm', type: 'button' }, 'Abschließen');
-        b.addEventListener('click', () => CRM.run(b, async () => {
-          const n = window.prompt('Was ist passiert? (z. B. „100 EUR zurücküberwiesen am …“, „mit Mai-Auszahlung verrechnet“, „abgeschrieben“)'); if (!n) return;
-          await CRM.rpc('settle_clawback', { p_commission_id: c.id, p_note: n }); CRM.refresh();
-        }, 'Rückforderung abgeschlossen.'));
-        return b;
+        if (!(c.status === 'open' && Number(c.amount) < 0)) return c.settle_note ? h('span', 'soft', c.settle_note) : '';
+        return CRM.btn('Erledigt', async (e) => {
+          const btn = e.currentTarget;
+          const r = await CRM.ask({ title: 'Wie wurde das geklärt?', text: `${CRM.eur(-c.amount)} wurden zu viel ausgezahlt.`, ok: 'Als erledigt markieren',
+            fields: [{ name: 'how', label: 'Was ist passiert?', required: true, options: [['', 'Bitte wählen …'], ['Wurde zurücküberwiesen', 'Wurde zurücküberwiesen'], ['Mit nächster Auszahlung verrechnet', 'Mit nächster Auszahlung verrechnet'], ['Abgeschrieben (verzichtet)', 'Abgeschrieben (verzichtet)']] },
+              { name: 'more', label: 'Notiz', placeholder: 'z. B. am 05.11. zurück' }] });
+          if (r) CRM.run(btn, async () => { await CRM.rpc('settle_clawback', { p_commission_id: c.id, p_note: r.more ? `${r.how}: ${r.more}` : r.how }); CRM.refresh(); }, 'Erledigt ✓');
+        }, 'ghost sm');
       };
-      const pb = h('button', { class: 'btn out sm', type: 'button' }, 'Ausgewählte auszahlen');
-      pb.addEventListener('click', () => CRM.run(pb, async () => {
-        if (!picked.size) throw new Error('Bitte offene Zeilen einer Person auswählen.');
-        const ref = window.prompt('Verwendungszweck (optional):'); if (ref === null) return;
-        await CRM.rpc('create_payout', { p_commission_ids: [...picked], p_reference: ref || null }); CRM.refresh();
-      }, 'Als ausgezahlt gebucht.'));
-      v.append(comTab === 'open' ? h('div', 'a-filters', h('p', 'a-muted', 'Normalfall ist der Haken auf „Auszahlungen“. Hier nur Sonderfälle (einzelne Zeilen einer Person).'), pb) : null,
+      v.append(comTab === 'claw' ? h('div', null, CRM.note('info', h('span', null, 'Hier landet Geld, das ausgezahlt war, bevor die Einzahlung storniert wurde. Kommt die Person bald wieder dran, verrechnet „Auszahlen“ das automatisch. Sonst hier als erledigt markieren.')), h('div', { style: 'height:14px' })) : null,
         CRM.table([
-          comTab === 'open' ? { t: '', v: (c) => h('input', { type: 'checkbox', 'aria-label': 'Auswählen', on: { change: (e) => { e.target.checked ? picked.add(c.id) : picked.delete(c.id); } } }) } : null,
-          { t: 'Lead', v: (c) => h('a', { href: '#lead/' + c.lead.id }, c.lead.lead_code) },
-          { t: 'Typ', v: (c) => (c.type === 'recruiter' ? 'Recruiter' : 'Creator') },
-          { t: 'Person', v: (c) => c.recruiter?.full_name || c.creator?.name || '–' },
-          { t: 'Betrag', v: (c) => CRM.eur(c.amount), cls: 'num' },
-          { t: 'Status', v: (c) => COM[c.status] + (c.reverses_commission_id ? ' (Gegenbuchung)' : '') },
-          { t: 'Gebucht', v: (c) => CRM.day(c.created_at) },
-          { t: '', v: settle },
-        ].filter(Boolean), rows, { empty: 'Keine Einträge.' }));
+          { t: 'Für Lead', cls: 'main', v: (c) => h('span', null, h('a', { href: '#lead/' + c.lead.id }, CRM.name(c.lead)), h('small', null, c.lead.lead_code)) },
+          { t: 'Wer', v: (c) => `${c.recruiter?.full_name || c.creator?.name || '–'} (${c.type === 'recruiter' ? 'Recruiter' : 'Model'})` },
+          { t: 'Betrag', cls: 'num', v: (c) => CRM.eur(c.amount) },
+          { t: 'Status', v: (c) => CRM.chip(COM[c.status] + (c.reverses_commission_id ? ', Gegenbuchung' : ''), c.status === 'open' ? (Number(c.amount) < 0 ? 'bad' : 'new') : c.status === 'paid_out' ? 'ok' : 'off') },
+          { t: 'Gebucht', cls: 'hide-m', v: (c) => CRM.day(c.created_at) },
+          { t: '', cls: 'bare', v: settle },
+        ], rows, { empty: comTab === 'claw' ? 'Nichts zu klären.' : 'Keine Einträge.' }));
     },
   });
 
-  // ---------- Meine Provision (Recruiter) ----------
+  // ---------- Mein Geld (Recruiter) ----------
   CRM.page({
-    id: 'mine', title: 'Meine Provision', roles: ['recruiter'], money: true,
+    id: 'mine', title: 'Mein Geld', icon: 'money', roles: ['recruiter'], money: true, tab: 4, tabLabel: 'Geld',
     async render(v) {
-      const [sum] = await CRM.api('v_payout_list?person_type=eq.recruiter');
-      const rows = await CRM.api('commissions?select=amount,status,created_at,lead:leads(id,lead_code,first_name,last_name)&order=created_at.desc&limit=300');
-      v.append(h('h1', null, 'Meine Provision'),
-        h('div', 'a-tiles',
-          h('div', 'a-tile', h('span', 'a-tile-n', CRM.eur(sum?.open_amount ?? 0)), h('span', null, 'offen')),
-          h('div', 'a-tile', h('span', 'a-tile-n', CRM.eur(sum?.paid_out_total ?? 0)), h('span', null, 'ausgezahlt')),
-          h('div', 'a-tile', h('span', 'a-tile-n', String(sum?.onboarded_total ?? 0)), h('span', null, 'onboardet'))),
+      const [[sum], rows] = await Promise.all([
+        CRM.api('v_payout_list?person_type=eq.recruiter'),
+        CRM.api('commissions?select=amount,status,created_at,lead:leads(id,lead_code,first_name,last_name)&order=created_at.desc&limit=300'),
+      ]);
+      v.append(CRM.head('Mein Geld', 'Für jeden Bewerber, dessen Einzahlung bestätigt ist, bekommst du eine Provision.'),
+        h('div', 'stats',
+          h('div', 'card stat', h('b', null, CRM.eur(sum?.open_amount ?? 0)), h('span', null, 'kommt mit der nächsten Auszahlung')),
+          h('div', 'card stat', h('b', null, CRM.eur(sum?.paid_out_total ?? 0)), h('span', null, 'schon ausgezahlt')),
+          h('div', 'card stat', h('b', null, String(sum?.onboarded_total ?? 0)), h('span', null, 'Bewerber geworben'))),
+        CRM.section('Einzelne Provisionen'),
         CRM.table([
-          { t: 'Lead', v: (c) => h('a', { href: '#lead/' + c.lead.id }, `${c.lead.lead_code} · ${CRM.name(c.lead)}`) },
-          { t: 'Betrag', v: (c) => CRM.eur(c.amount), cls: 'num' }, { t: 'Status', v: (c) => COM[c.status] }, { t: 'Gebucht', v: (c) => CRM.day(c.created_at) },
-        ], rows, { empty: 'Noch keine Provisionen.' }));
+          { t: 'Für', cls: 'main', v: (c) => h('a', { href: '#lead/' + c.lead.id }, CRM.name(c.lead)) },
+          { t: 'Betrag', cls: 'num', v: (c) => CRM.eur(c.amount) },
+          { t: 'Status', v: (c) => CRM.chip(COM[c.status], c.status === 'paid_out' ? 'ok' : c.status === 'open' ? 'new' : 'off') },
+          { t: 'Seit', v: (c) => CRM.day(c.created_at) },
+        ], rows, { empty: 'Noch keine Provisionen.', emptyText: 'Sobald eine Einzahlung deiner Bewerber bestätigt ist, erscheint sie hier.' }));
     },
   });
 })();

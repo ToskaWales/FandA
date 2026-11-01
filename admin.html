@@ -4,52 +4,73 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#06101a">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#f5f6f4">
+<meta name="color-scheme" content="light">
 <title>CRM | F&A Sales Consulting</title>
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" href="assets/icon-192.png" type="image/png" sizes="192x192">
 <link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/admin.css">
 </head>
-<body class="admin">
-<header class="a-top"><div class="a-wrap a-wide">
-  <a class="a-brand" href="index.html" aria-label="Zur Website"><img src="assets/logo.svg" alt="F&amp;A Sales Consulting" width="44" height="44"></a>
-  <div class="a-user" id="user" hidden><span id="who"></span><button type="button" class="a-link" id="logout">Abmelden</button></div>
-</div></header>
+<body class="crm">
+<a class="skip" href="#view">Zum Inhalt springen</a>
 
-<p class="a-flash" id="flash" role="status" aria-live="polite"></p>
-
-<main id="main">
-  <section id="login" class="a-wrap" hidden><div class="a-card">
+<!-- Anmelden / Passwort festlegen -->
+<main class="auth" id="login" hidden>
+  <a class="mark" href="index.html">F&amp;A <span>Sales Consulting</span></a>
+  <div class="card auth__card">
     <h1>Anmelden</h1>
-    <p class="a-muted">CRM für das Team von F&amp;A (Admins und Recruiter).</p>
-    <form id="loginform" novalidate>
-      <div class="field"><label class="cap" for="l-email">E-Mail</label><input id="l-email" type="email" autocomplete="username" required></div>
-      <div class="field"><label class="cap" for="l-pass">Passwort</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
-      <p class="a-error" id="loginerr" role="alert" hidden></p>
-      <button class="btn" type="submit">Anmelden</button>
-      <button class="a-link" type="button" id="forgot">Passwort vergessen?</button>
+    <p class="soft">CRM für das Team von F&amp;A.</p>
+    <form id="loginform" class="stack" novalidate>
+      <div class="field"><label for="l-email">E-Mail</label><input id="l-email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="l-pass">Passwort</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
+      <p class="msg bad" id="loginerr" role="alert" hidden></p>
+      <button class="btn btn--wide" type="submit">Anmelden</button>
+      <button class="link" type="button" id="forgot">Passwort vergessen?</button>
     </form>
-  </div></section>
-
-  <section id="setpw" class="a-wrap" hidden><div class="a-card">
-    <h1>Passwort festlegen</h1>
-    <p class="a-muted">Willkommen! Lege ein Passwort für dein Konto fest.</p>
-    <form id="setpwform" novalidate>
-      <div class="field"><label class="cap" for="p-new">Neues Passwort (mindestens 10 Zeichen)</label><input id="p-new" type="password" autocomplete="new-password" required minlength="10"></div>
-      <p class="a-error" id="setpwerr" role="alert" hidden></p>
-      <button class="btn" type="submit">Speichern und weiter</button>
-    </form>
-  </div></section>
-
-  <section id="app" hidden>
-    <nav class="a-nav" aria-label="CRM"><div class="a-wrap a-wide" id="nav"></div></nav>
-    <div class="a-wrap a-wide" id="view"></div>
-  </section>
-  <noscript><p class="a-wrap a-card">Diese Seite braucht JavaScript.</p></noscript>
+  </div>
 </main>
+
+<main class="auth" id="setpw" hidden>
+  <a class="mark" href="index.html">F&amp;A <span>Sales Consulting</span></a>
+  <div class="card auth__card">
+    <h1>Passwort festlegen</h1>
+    <p class="soft">Willkommen! Lege ein Passwort für dein Konto fest.</p>
+    <form id="setpwform" class="stack" novalidate>
+      <div class="field"><label for="p-new">Neues Passwort <small>mindestens 10 Zeichen</small></label><input id="p-new" type="password" autocomplete="new-password" required minlength="10"></div>
+      <p class="msg bad" id="setpwerr" role="alert" hidden></p>
+      <button class="btn btn--wide" type="submit">Speichern und weiter</button>
+    </form>
+  </div>
+</main>
+
+<!-- CRM -->
+<div class="app" id="app" hidden>
+  <aside class="side" id="side" aria-label="Menü">
+    <div class="side__top">
+      <a class="mark" href="#start">F&amp;A <span>CRM</span></a>
+      <button class="side__close" type="button" id="menu-close" aria-label="Menü schließen">Schließen</button>
+    </div>
+    <nav id="nav" class="side__nav"></nav>
+    <div class="side__user">
+      <span id="who"></span>
+      <button class="link" type="button" id="logout">Abmelden</button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <header class="top">
+    <a class="mark" href="#start">F&amp;A <span>CRM</span></a>
+  </header>
+
+  <main class="view" id="view" tabindex="-1"></main>
+
+  <nav class="tabbar" id="tabbar" aria-label="Schnellzugriff"></nav>
+</div>
+
+<div class="toast" id="flash" role="status" aria-live="polite"></div>
+<noscript><p class="card">Diese Seite braucht JavaScript.</p></noscript>
+
 <script src="js/config.js"></script>
 <script src="js/admin/core.js"></script>
 <script src="js/admin/leads.js"></script>
