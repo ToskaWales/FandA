@@ -13,8 +13,31 @@
     if (a.hasAttribute('data-tel-text')) a.textContent = FA.PHONE;
   });
 
+  // Tracking-Parameter (?ref= Recruiter, src= Kanal, post= Gruppen-Post, ad_id= Website-Anzeige, utm_*) beim Absenden aus der URL lesen.
+  // Bewusst ohne sessionStorage/Cookie: die Datenschutzerklärung sagt "keine Speicherung auf dem Endgerät" (§ 25 TDDDG, Bauplan 11.2 Nr. 4).
+  // Darum zeigen Tracking-Links direkt auf das Formular (karriere.html?ref=…#apply).
+  const TRACK_KEYS = ['ref', 'src', 'post', 'ad_id', 'utm_source', 'utm_medium', 'utm_campaign'];
+  const readTrack = () => {
+    const q = new URLSearchParams(location.search);
+    const out = {};
+    TRACK_KEYS.forEach((k) => { if (q.get(k)) out[k] = q.get(k).slice(0, 120); });
+    return out;
+  };
+
+  // Cloudflare Turnstile (Bot-Schutz) nur, wenn in config.js ein Site-Key steht; dann muss auch TURNSTILE_SECRET in Supabase gesetzt sein.
+  if (FA.TURNSTILE_SITE_KEY && FA.SUPABASE_URL && document.querySelector('form[data-mail-form]')) {
+    const s = document.createElement('script');
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js'; s.async = true; s.defer = true;
+    document.head.appendChild(s);
+  }
+
   document.querySelectorAll('form[data-mail-form]').forEach((form) => {
     const status = form.querySelector('.form-status');
+    if (FA.TURNSTILE_SITE_KEY && FA.SUPABASE_URL) {
+      const ts = document.createElement('div');
+      ts.className = 'cf-turnstile'; ts.dataset.sitekey = FA.TURNSTILE_SITE_KEY; ts.dataset.language = 'de';
+      form.querySelector('button[type=submit]').before(ts);
+    }
 
     const validate = () => {
       let ok = true;
@@ -50,21 +73,30 @@
       location.href = `mailto:${FA.EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
     };
 
-    const send = async (data) => {
+    // Speichern über die Edge Function submit-lead (prüft, entdoppelt, teilt dem Recruiter zu). Direkt in die Tabelle darf niemand mehr schreiben.
+    const MAPPED = new Set(['vorname', 'nachname', 'email', 'telefon', 'nachricht', 'a-name', 'a-firma', 'a-email', 'a-tel', 'a-msg', 'website']);
+    const send = async () => {
       const v = (id) => (form.elements[id]?.value || '').trim();
-      const row = {
+      const extra = {};
+      form.querySelectorAll('input:not([type=checkbox]), select, textarea').forEach((el) => {
+        if (!el.name || MAPPED.has(el.name) || !el.value.trim()) return;
+        const label = form.querySelector(`label[for="${el.id}"]`);
+        extra[label ? label.textContent.replace('(optional)', '').trim() : el.name] = el.value.trim();
+      });
+      const body = {
         kind: form.dataset.kind || (form.id === 'apply' ? 'setter' : 'partner'),
-        name: [v('vorname'), v('nachname'), v('a-name')].filter(Boolean).join(' '),
-        email: v('email') || v('a-email'),
-        phone: v('telefon') || v('a-tel'),
-        company: v('a-firma') || null,
-        message: v('nachricht') || v('a-msg') || null,
-        data,
+        first_name: v('vorname') || null, last_name: v('nachname') || null, name: v('a-name') || null,
+        email: v('email') || v('a-email') || null, phone: v('telefon') || v('a-tel') || null,
+        firma: v('a-firma') || null, message: v('nachricht') || v('a-msg') || null, data: extra,
+        consent: true,            // Formular zeigt den Datenschutzhinweis (Art. 6 Abs. 1 lit. b/f DSGVO), keine Checkbox
+        company: hp.value,        // Honeypot, muss leer sein
+        turnstile_token: form.querySelector('[name="cf-turnstile-response"]')?.value || undefined,
+        ...readTrack(),
       };
-      const res = await fetch(`${FA.SUPABASE_URL}/rest/v1/leads`, {
+      const res = await fetch(`${FA.SUPABASE_URL}/functions/v1/submit-lead`, {
         method: 'POST',
-        headers: { apikey: FA.SUPABASE_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-        body: JSON.stringify(row),
+        headers: { apikey: FA.SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
     };
@@ -85,7 +117,7 @@
       if (FA.SUPABASE_URL && FA.SUPABASE_KEY) {
         btn.disabled = true;
         try {
-          await send(data);
+          await send();
           form.reset();
           show(formal ? 'Danke! Ihre Nachricht ist bei uns angekommen. Wir melden uns persönlich bei Ihnen.'
                       : 'Danke! Deine Nachricht ist bei uns angekommen. Wir melden uns persönlich bei dir.');
