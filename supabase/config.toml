@@ -1,0 +1,13 @@
+# supabase/config.toml  (alle Funktionen, die kein Supabase-Login-Token bekommen; jede prüft ihren eigenen Schutz: Signatur, x-cron-secret oder Login im Code)
+[functions.meta-leadgen-webhook]
+verify_jwt = false
+[functions.submit-lead]
+verify_jwt = false
+[functions.sync-meta-insights]
+verify_jwt = false
+[functions.weekly-ad-report]
+verify_jwt = false
+[functions.draft-reply]
+verify_jwt = false
+[functions.admin-invite]
+verify_jwt = false
