@@ -42,16 +42,44 @@ Hauptadresse ohne `www`; `www` leitet dorthin weiter. DNS bei Squarespace (Domai
 - Standard-Einträge, die auf Squarespace-Websites zeigen, löschen. **MX/TXT (E-Mail) nicht löschen.**
 GitHub: Settings → Pages → Custom domain `fasalesconsulting.com`, danach „Enforce HTTPS“.
 
-## Anfragen & Admin (Supabase)
+## CRM (Supabase): Leads, Recruiter, Ads, Auszahlungen
 
-Formulare speichern Anfragen in einer Datenbank. Ansehen und als „kontaktiert“ markieren geht unter `/admin.html` (nicht verlinkt, `noindex`).
+Grundlage ist der Bauplan „Recruiting-CRM mit Meta-Ads-Anbindung“ (Stand 01.11.2026). Er liegt **bewusst nicht im Repo**, weil GitHub Pages alles im Repo öffentlich ausliefert. Abschnittsnummern unten (z. B. „Bauplan 4.3“) beziehen sich auf ihn.
 
-1. Konto auf supabase.com, neues Projekt, **Region: Central EU (Frankfurt)**.
-2. **SQL Editor** → Inhalt von `supabase/schema.sql` einfügen → Run. (Die erste Admin-E-Mail steht schon drin.)
-3. **Authentication → Users → Add user**: E-Mail + Passwort anlegen, „Auto Confirm“ an. **Authentication → Sign In / Providers**: „Allow new users to sign up“ **aus**.
-4. **Project Settings → API**: `Project URL` und den `anon`/`publishable` Key in `js/config.js` als `SUPABASE_URL` und `SUPABASE_KEY` eintragen. Der Key ist öffentlich und durch die Regeln im Schema geschützt (Besucher dürfen nur einfügen).
-5. Auftragsverarbeitungsvertrag (DPA) bei Supabase abschließen, Datenschutzabschnitt 6 prüfen.
+- **Website-Formulare** (`js/form.js`) senden an die Edge Function `submit-lead`. Bewerbungen werden Leads und gehen per `?ref=` an den Recruiter; Partner-Anfragen von Vermittlern landen in `partner_requests`. Ist Supabase nicht erreichbar, öffnet sich wie bisher das E-Mail-Programm.
+- **CRM** unter `/admin.html` (nicht verlinkt, `noindex`): Admins sehen alles, Recruiter nur ihre eigenen Leads. Die Rechte erzwingt die Datenbank (Row Level Security), die Oberfläche blendet nur aus. Code: `js/admin/*.js`, ohne Build-Schritt.
+- **Geld** (Zahlungen, Provisionen, Auszahlungen) ist eingebaut, aber über `MONEY_ENABLED: false` in `js/config.js` ausgeblendet. **Erst nach der anwaltlichen Prüfung einschalten** (250-EUR-Einzahlung mit Werber-Provision: Nähe zu § 16 Abs. 2 UWG, Bauplan P2).
 
-**Weitere Admins:** Person unter *Authentication → Users → Add user* anlegen (Auto Confirm), dann auf `/admin.html` unter „Team“ ihre E-Mail hinzufügen. Entfernen geht dort ebenfalls.
+### Dateien
+| Pfad | Inhalt |
+|---|---|
+| `supabase/migrations/` | In dieser Reihenfolge: `000050_rename_legacy` (alte Tabellen beiseite) → `000100_core` → `000150_migrate_legacy` (alte Anfragen/Admins übernehmen, `partner_requests`) → `000200_money` → `000300_ads_ai` → `000400_groups` |
+| `supabase/manual/005_cron.sql` | Zeitpläne (pg_cron). Mit Platzhaltern, darum **nicht** in `migrations/`: von Hand im SQL-Editor ausführen |
+| `supabase/tests/900_smoke_test.sql` | Abnahmetest (rund 85 Prüfungen, rollt alles zurück) |
+| `supabase/functions/` | `submit-lead`, `meta-leadgen-webhook`, `admin-invite`, `sync-meta-insights`, `weekly-ad-report`, `draft-reply` |
+| `supabase/config.toml` | `verify_jwt = false` für alle sechs Funktionen (jede prüft selbst: Signatur, `x-cron-secret` oder Login) |
+| `supabase/legacy/schema.sql` | Das alte Schema, nur noch als Verlauf |
 
-Bleiben die beiden Werte leer, öffnen die Formulare wie bisher das E-Mail-Programm. Schlägt das Senden fehl, greift derselbe Ersatzweg.
+### Einrichten (zuerst auf einem **Staging-Projekt**, dann gleich auf dem echten)
+1. **CLI:** `npx supabase login`, dann `npx supabase link --project-ref <REF>`.
+2. **Sicherung (nur echtes Projekt):** Table Editor → `leads` und `admins` als CSV exportieren.
+3. **Migrationen:** `npx supabase db push`. Die alten Tabellen heißen danach `legacy_leads`/`legacy_admins`; nach 30 Tagen von Hand löschen (`drop table legacy_leads, legacy_admins;`).
+4. **Abnahmetest:** Drei Test-Nutzer unter Authentication → Users anlegen, die **noch kein Profil** haben (also nicht die bestehenden Admins), UUIDs in `900_smoke_test.sql` eintragen, im SQL-Editor ausführen. Erwartet: `Alle Tests bestanden`.
+5. **Login:** Authentication → URL Configuration: Site URL `https://fasalesconsulting.com/admin.html`, dieselbe Adresse unter Redirect URLs. „Allow new users to sign up“ bleibt aus.
+6. **Funktionen:** `npx supabase functions deploy` (alle). Secrets nur per CLI setzen, **nie ins Repo**:
+   ```bash
+   npx supabase secrets set ALLOWED_ORIGINS="https://fasalesconsulting.com,https://www.fasalesconsulting.com" \
+     INVITE_REDIRECT_URL="https://fasalesconsulting.com/admin.html" CRON_SECRET="<langer Zufallswert>"
+   # ab Meta (Bauplan 4.3): META_APP_SECRET, META_VERIFY_TOKEN, META_PAGE_TOKENS, META_SYSTEM_TOKEN, META_AD_ACCOUNT_ID
+   # ab KI: ANTHROPIC_API_KEY (optional AI_MODEL)    ab Bot-Schutz: TURNSTILE_SECRET (+ TURNSTILE_SITE_KEY in js/config.js)
+   ```
+7. **Zeitpläne:** Database → Extensions: `pg_cron`, `pg_net`, `supabase_vault` an. Dann `supabase/manual/005_cron.sql` mit eingesetztem Projekt-Ref und `CRON_SECRET` ausführen (`meta-sync-daily` und `weekly-ad-report` erst, wenn die Meta- bzw. KI-Secrets gesetzt sind).
+8. **Recruiter anlegen:** CRM → Betreuer → Person anlegen (mit E-Mail) → „Zum Login einladen“. Der Link-Code entsteht automatisch.
+9. **Erst danach** die Website-Änderungen auf GitHub veröffentlichen: Die Formulare brauchen `submit-lead`, die Admin-Seite braucht das neue Schema.
+
+### Meta, KI, Livegang
+- Meta-App, Webhook, Berechtigungen, App Review: Checkliste in Bauplan 4.3 (früh beantragen, dauert). Anzeigen bekommen ihren Recruiter/Creator über den Namen: `[ref:<link-code>] [cr:<creator-code>]` (Codes zum Kopieren auf den Seiten Betreuer/Creators).
+- Vor dem Livegang (Bauplan Schritt 9): Turnstile an, Backups/PITR an, Datenschutzerklärung um Meta, Anthropic und Turnstile ergänzen (Hinweis als Kommentar in `datenschutz.html`), AV-Verträge, RLS mit zwei Recruiter-Konten durchklicken, einmal `erase_lead` mit Testdaten.
+
+### Testen ohne Supabase
+Die Migrationen und der Abnahmetest lassen sich lokal in PGlite (Postgres als WebAssembly, `npm i @electric-sql/pglite`) mit nachgebauten Supabase-Teilen (`auth.uid()`, Rollen, `storage`) ausführen. So wurden sie auch geprüft: frisch (`Alle Tests bestanden`), nur Kern (`Kern-Tests bestanden`) und mit Altdaten-Übernahme.

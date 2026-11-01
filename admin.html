@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#06101a">
 <meta name="color-scheme" content="dark">
-<title>Anfragen | F&A Sales Consulting</title>
+<title>CRM | F&A Sales Consulting</title>
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" href="assets/icon-192.png" type="image/png" sizes="192x192">
 <link rel="stylesheet" href="css/fonts.css">
@@ -14,50 +14,49 @@
 <link rel="stylesheet" href="css/admin.css">
 </head>
 <body class="admin">
-<header class="a-top"><div class="a-wrap">
+<header class="a-top"><div class="a-wrap a-wide">
   <a class="a-brand" href="index.html" aria-label="Zur Website"><img src="assets/logo.svg" alt="F&amp;A Sales Consulting" width="44" height="44"></a>
   <div class="a-user" id="user" hidden><span id="who"></span><button type="button" class="a-link" id="logout">Abmelden</button></div>
 </div></header>
 
-<main class="a-wrap" id="main">
-  <section id="login" class="a-card" hidden>
+<p class="a-flash" id="flash" role="status" aria-live="polite"></p>
+
+<main id="main">
+  <section id="login" class="a-wrap" hidden><div class="a-card">
     <h1>Anmelden</h1>
-    <p class="a-muted">Nur für das Team von F&amp;A.</p>
+    <p class="a-muted">CRM für das Team von F&amp;A (Admins und Recruiter).</p>
     <form id="loginform" novalidate>
       <div class="field"><label class="cap" for="l-email">E-Mail</label><input id="l-email" type="email" autocomplete="username" required></div>
       <div class="field"><label class="cap" for="l-pass">Passwort</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
       <p class="a-error" id="loginerr" role="alert" hidden></p>
       <button class="btn" type="submit">Anmelden</button>
+      <button class="a-link" type="button" id="forgot">Passwort vergessen?</button>
     </form>
-  </section>
+  </div></section>
+
+  <section id="setpw" class="a-wrap" hidden><div class="a-card">
+    <h1>Passwort festlegen</h1>
+    <p class="a-muted">Willkommen! Lege ein Passwort für dein Konto fest.</p>
+    <form id="setpwform" novalidate>
+      <div class="field"><label class="cap" for="p-new">Neues Passwort (mindestens 10 Zeichen)</label><input id="p-new" type="password" autocomplete="new-password" required minlength="10"></div>
+      <p class="a-error" id="setpwerr" role="alert" hidden></p>
+      <button class="btn" type="submit">Speichern und weiter</button>
+    </form>
+  </div></section>
 
   <section id="app" hidden>
-    <div class="a-head">
-      <h1>Anfragen</h1>
-      <button type="button" class="a-link" id="reload">Aktualisieren</button>
-    </div>
-    <div class="a-tabs" role="tablist" aria-label="Filter">
-      <button type="button" role="tab" data-f="neu" aria-selected="true">Neu <span id="c-neu">0</span></button>
-      <button type="button" role="tab" data-f="kontaktiert" aria-selected="false">Kontaktiert <span id="c-kontaktiert">0</span></button>
-      <button type="button" role="tab" data-f="alle" aria-selected="false">Alle <span id="c-alle">0</span></button>
-    </div>
-    <p class="a-muted" id="state" role="status"></p>
-    <ul class="a-list" id="list"></ul>
-
-    <section class="a-team" aria-labelledby="team-h">
-      <h2 id="team-h">Team</h2>
-      <p class="a-muted">Diese Personen dürfen sich hier anmelden. Das Konto selbst legst du in Supabase unter Authentication &rarr; Users an.</p>
-      <ul class="a-members" id="members"></ul>
-      <form id="addadmin" class="a-add" novalidate>
-        <div class="field"><label class="cap" for="n-email">E-Mail hinzufügen</label><input id="n-email" type="email" autocomplete="off" required></div>
-        <button class="btn out" type="submit">Hinzufügen</button>
-      </form>
-      <p class="a-error" id="teamerr" role="alert" hidden></p>
-    </section>
+    <nav class="a-nav" aria-label="CRM"><div class="a-wrap a-wide" id="nav"></div></nav>
+    <div class="a-wrap a-wide" id="view"></div>
   </section>
-  <noscript><p class="a-card">Diese Seite braucht JavaScript.</p></noscript>
+  <noscript><p class="a-wrap a-card">Diese Seite braucht JavaScript.</p></noscript>
 </main>
 <script src="js/config.js"></script>
-<script src="js/admin.js"></script>
+<script src="js/admin/core.js"></script>
+<script src="js/admin/leads.js"></script>
+<script src="js/admin/team.js"></script>
+<script src="js/admin/money.js"></script>
+<script src="js/admin/ads.js"></script>
+<script src="js/admin/groups.js"></script>
+<script src="js/admin/settings.js"></script>
 </body>
 </html>
