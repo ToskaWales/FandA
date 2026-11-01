@@ -61,7 +61,7 @@
   });
 
   // ---------- Verlauf ----------
-  const TABLE = { profiles: 'Team', ads: 'Anzeigen', creators: 'Models', app_settings: 'Einstellungen', payments: 'Einzahlungen', commissions: 'Provisionen', payouts: 'Auszahlungen', partner_requests: 'Partner-Anfragen' };
+  const TABLE = { leads: 'Leads', profiles: 'Team', ads: 'Anzeigen', creators: 'Models', app_settings: 'Einstellungen', payments: 'Einzahlungen', commissions: 'Provisionen', payouts: 'Auszahlungen', partner_requests: 'Partner-Anfragen' };
   let logTable = '';
   CRM.page({
     id: 'log', title: 'Verlauf', group: 'Verwaltung', icon: 'clock', roles: ['admin'],
@@ -74,6 +74,7 @@
       ]);
       const who = new Map(people.map((p) => [p.id, p.full_name]));
       const diff = (r) => {
+        if (r.table_name === 'leads' && r.action === 'DELETE') return `Lead ${r.old_data?.lead_code || ''} gelöscht. Grund: ${r.old_data?.reason || '–'}`;
         if (r.action !== 'UPDATE') return r.action === 'INSERT' ? 'neu angelegt' : 'gelöscht';
         const o = r.old_data || {}, n = r.new_data || {};
         return Object.keys(n).filter((k) => k !== 'updated_at' && JSON.stringify(o[k]) !== JSON.stringify(n[k]))
@@ -89,7 +90,7 @@
         ], hooks));
       }
       v.append(CRM.section('Änderungen'),
-        CRM.pills([['', 'Alles'], ['profiles', 'Team'], ['ads', 'Anzeigen'], ['creators', 'Models'], ['app_settings', 'Einstellungen'], ...(CRM.money ? [['payments', 'Einzahlungen'], ['payouts', 'Auszahlungen']] : [])],
+        CRM.pills([['', 'Alles'], ['leads', 'Gelöschte Leads'], ['profiles', 'Team'], ['ads', 'Anzeigen'], ['creators', 'Models'], ['app_settings', 'Einstellungen'], ...(CRM.money ? [['payments', 'Einzahlungen'], ['payouts', 'Auszahlungen']] : [])],
           logTable, (k) => { logTable = k; CRM.refresh(); }),
         CRM.table([
           { t: 'Wann', cls: 'main', v: (r) => h('span', null, CRM.when(r.created_at), h('small', null, TABLE[r.table_name] || r.table_name)) },

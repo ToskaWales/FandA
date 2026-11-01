@@ -11,6 +11,14 @@
     payment_reversed: 'Einzahlung storniert', creator_missing: 'Model fehlt', creator_corrected: 'Model korrigiert', erased: 'Personendaten gelöscht',
   };
   const LOST = ['Nicht erreichbar', 'Kein Interesse', 'Will die Einzahlung nicht', 'Passt nicht (Erfahrung/Zeit)', 'Doppelt angemeldet', 'Sonstiges'];
+  const JUNK = ['Unseriös / Fake-Daten', 'Spam / Bot', 'Doppelt angemeldet', 'Test-Eintrag', 'Sonstiges'];
+  // Lead ganz löschen (nur Admins, nur ohne Einzahlung; prüft die Datenbank). Gibt true zurück, wenn gelöscht.
+  const deleteLead = async (l) => {
+    const r = await CRM.ask({ title: `${CRM.name(l)} löschen?`, text: 'Für unseriöse Leads (Fake, Spam, Test). Der Lead verschwindet komplett, mit Notizen und Verlauf. Das lässt sich nicht rückgängig machen.',
+      ok: 'Endgültig löschen', danger: true, fields: [{ name: 'why', label: 'Warum?', options: JUNK.map((x) => [x, x]), value: JUNK[0], required: true }, { name: 'more', label: 'Genauer' }] });
+    if (!r) return false;
+    return (await CRM.run(null, async () => { await CRM.rpc('delete_lead', { p_lead_id: l.id, p_reason: r.more ? `${r.why}: ${r.more}` : r.why }); return true; }, 'Lead gelöscht.')) === true;
+  };
   Object.assign(CRM, { STATUS, SOURCE });
   CRM.statusChip = (s) => CRM.chip(STATUS[s] || s, s);
   const callBtn = (phone) => phone ? h('a', { class: 'btn btn--ghost btn--sm', href: CRM.tel(phone), 'aria-label': 'Anrufen ' + phone }, CRM.icon('phone'), 'Anrufen') : '';
@@ -169,6 +177,7 @@
           }, 'Zugeteilt ✓'), 'sm');
           return h('div', 'row', s, b);
         } },
+        { t: '', cls: 'bare', v: (l) => h('button', { type: 'button', class: 'link link--danger', on: { click: async () => { if (await deleteLead(l)) CRM.refresh(); } } }, 'Unseriös? Löschen') },
       ].filter(Boolean), rows));
     },
   });
@@ -290,6 +299,7 @@
         const more = h('details', 'card', h('summary', null, 'Weitere Aktionen'), h('div', 'stack'));
         const box = more.lastChild;
         if (CRM.leadMoreActions) await CRM.leadMoreActions(box, l);
+        if (!paid) box.append(h('div', null, h('button', { type: 'button', class: 'link link--danger', on: { click: async () => { if (await deleteLead(l)) CRM.go('leads'); } } }, 'Lead löschen (unseriös, Spam, Test)')));
         box.append(h('div', null, h('button', { type: 'button', class: 'link link--danger', on: { click: async () => {
           const r = await CRM.ask({ title: 'Personendaten löschen?', text: 'Name, Telefon, E-Mail, Antworten und Notiztexte werden endgültig entfernt (z. B. bei einer Löschanfrage nach DSGVO). Buchungen bleiben anonym erhalten. Belege bitte zusätzlich in Supabase löschen.',
             ok: 'Endgültig löschen', danger: true, fields: [{ name: 'reason', label: 'Grund', placeholder: 'z. B. Löschanfrage per E-Mail vom …', required: true }] });

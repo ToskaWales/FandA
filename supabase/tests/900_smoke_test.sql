@@ -354,6 +354,32 @@ begin
     assert not (select active from profiles where id = anna), 'T88 Inhaber darf Admins anlegen und deaktivieren';
   end if;
 
+  -- 6g) Unseriöse Leads löschen (ab 000600_delete_lead.sql)
+  if to_regproc('public.delete_lead') is not null then
+    declare dx uuid; dy uuid;
+    begin
+      perform pg_temp.act_as(uid_admin);
+      insert into leads (first_name, phone, source) values ('Fake', '0177 0000001', 'website') returning id into dx;
+      perform add_lead_note(dx, 'Fake-Nummer');
+      insert into leads (first_name, phone, source) values ('Fake2', '0177 0000001', 'website') returning id into dy;
+      assert (select possible_duplicate_of from leads where id = dy) = dx, 'T90 Dublette verweist auf den Fake-Lead';
+      perform pg_temp.act_as(uid_ben);
+      begin perform delete_lead(dx, 'Spam'); assert false, 'T91 Recruiter darf nicht löschen';
+      exception when raise_exception then null; end;
+      perform pg_temp.act_as(uid_admin);
+      perform delete_lead(dx, 'Unseriös');
+      assert not exists (select 1 from leads where id = dx) and not exists (select 1 from lead_events where lead_id = dx), 'T92 Lead samt Verlauf gelöscht';
+      assert (select possible_duplicate_of from leads where id = dy) is null, 'T93 Dublettenhinweis auf gelöschten Lead entfernt';
+      assert exists (select 1 from audit_log where table_name = 'leads' and row_id = dx::text and action = 'DELETE' and old_data ->> 'reason' = 'Unseriös'), 'T94 Vermerk im Verlauf';
+      begin delete from lead_events where lead_id = dy; assert false, 'T95 Verlauf bleibt sonst unlöschbar';
+      exception when raise_exception or insufficient_privilege then null; end;
+      if has_money then
+        begin perform delete_lead(l_ref, 'x'); assert false, 'T96 Lead mit Einzahlung darf nicht gelöscht werden';
+        exception when raise_exception then null; end;
+      end if;
+    end;
+  end if;
+
   -- 7) Anonyme Besucher sehen nichts
   perform pg_temp.act_as(null);
   set local role anon;
