@@ -7,6 +7,6 @@ window.FA = {
   SUPABASE_URL: 'https://xohxhrbpcrnslcgumgya.supabase.co',                // z. B. https://abcdefgh.supabase.co
   SUPABASE_KEY: 'sb_publishable_5zts9mpV-oWOCwKOx0o1lw_gbFlsxqp',                // anon / publishable key (öffentlich, durch die Regeln in supabase/migrations geschützt)
   TURNSTILE_SITE_KEY: '',     // Cloudflare Turnstile (öffentlicher Site-Key). Leer = aus. Gesetzt = TURNSTILE_SECRET in Supabase setzen.
-  // Zahlungen, Auszahlungen, Provisionen im CRM anzeigen. Erst nach der anwaltlichen Prüfung (Bauplan P2) auf true setzen.
-  MONEY_ENABLED: false,
+  // Zahlungen, Auszahlungen, Provisionen im CRM anzeigen (anwaltlich geprüft, Bauplan P2). false = ausblenden.
+  MONEY_ENABLED: true,
 };

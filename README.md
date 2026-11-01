@@ -48,7 +48,7 @@ Grundlage ist der Bauplan „Recruiting-CRM mit Meta-Ads-Anbindung“ (Stand 01.
 
 - **Website-Formulare** (`js/form.js`) senden an die Edge Function `submit-lead`. Bewerbungen werden Leads und gehen per `?ref=` an den Recruiter; Partner-Anfragen von Vermittlern landen in `partner_requests`. Ist Supabase nicht erreichbar, öffnet sich wie bisher das E-Mail-Programm.
 - **CRM** unter `/admin.html` (nicht verlinkt, `noindex`): Admins sehen alles, Recruiter nur ihre eigenen Leads. Die Rechte erzwingt die Datenbank (Row Level Security), die Oberfläche blendet nur aus. Code: `js/admin/*.js`, ohne Build-Schritt.
-- **Geld** (Zahlungen, Provisionen, Auszahlungen) ist eingebaut, aber über `MONEY_ENABLED: false` in `js/config.js` ausgeblendet. **Erst nach der anwaltlichen Prüfung einschalten** (250-EUR-Einzahlung mit Werber-Provision: Nähe zu § 16 Abs. 2 UWG, Bauplan P2).
+- **Geld** (Zahlungen, Provisionen, Auszahlungen) ist anwaltlich geprüft (Bauplan P2) und eingeschaltet. Ausblenden: `MONEY_ENABLED: false` in `js/config.js`.
 
 ### Dateien
 | Pfad | Inhalt |
@@ -60,7 +60,7 @@ Grundlage ist der Bauplan „Recruiting-CRM mit Meta-Ads-Anbindung“ (Stand 01.
 | `supabase/config.toml` | `verify_jwt = false` für alle sechs Funktionen (jede prüft selbst: Signatur, `x-cron-secret` oder Login) |
 | `supabase/legacy/schema.sql` | Das alte Schema, nur noch als Verlauf |
 
-### Einrichten (zuerst auf einem **Staging-Projekt**, dann gleich auf dem echten)
+### Einrichten (direkt auf dem echten Projekt; der Abnahmetest rollt alles zurück)
 1. **CLI:** `npx supabase login`, dann `npx supabase link --project-ref <REF>`.
 2. **Sicherung (nur echtes Projekt):** Table Editor → `leads` und `admins` als CSV exportieren.
 3. **Migrationen:** `npx supabase db push`. Die alten Tabellen heißen danach `legacy_leads`/`legacy_admins`; nach 30 Tagen von Hand löschen (`drop table legacy_leads, legacy_admins;`).
