@@ -330,10 +330,11 @@
       const err = $('loginerr'); err.textContent = 'Du bist angemeldet, aber dein Konto ist im CRM noch nicht freigeschaltet. Bitte melde dich beim Admin.'; err.hidden = false;
       return;
     }
+    CRM.owner = CRM.role === 'admin' && await CRM.rpc('is_owner').catch(() => false) === true;   // nur der Inhaber verwaltet Admins
     if (!session.email) {   // nach Einladungs-Link kennen wir die E-Mail noch nicht
       try { session.email = (await auth('user', null, 'GET', session.access_token)).email || ''; store.set(session); } catch (e) { /* nur Anzeige */ }
     }
-    $('who').textContent = `${session.email} · ${CRM.role === 'admin' ? 'Admin' : 'Recruiter'}`;
+    $('who').textContent = `${session.email} · ${CRM.owner ? 'Inhaber' : CRM.role === 'admin' ? 'Admin' : 'Recruiter'}`;
     buildNav();
     show('app');
     route();

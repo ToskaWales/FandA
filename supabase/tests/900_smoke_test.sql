@@ -326,6 +326,34 @@ begin
     end if;
   end;
 
+  -- 6f) Inhaber: nur er verwaltet Admins (ab 000500_owner.sql)
+  if to_regproc('public.is_owner') is not null then
+    perform pg_temp.act_as(null); perform set_config('request.jwt.claim.sub', '', true);
+    update profiles set is_owner = false where is_owner;                      -- falls schon ein echter Inhaber existiert (wird zurückgerollt)
+    update profiles set is_owner = true where auth_user_id = uid_admin::uuid;
+    update profiles set role = 'admin' where id = anna;                       -- Anna wird zweite Admin, nicht Inhaberin
+    perform pg_temp.act_as(uid_anna);
+    assert not is_owner(), 'T80 Anna ist nicht Inhaberin';
+    begin update profiles set active = false where auth_user_id = uid_admin::uuid; assert false, 'T81 Admin darf den Inhaber nicht deaktivieren';
+    exception when raise_exception then null; end;
+    begin insert into profiles (role, full_name) values ('admin', 'Test Neu-Admin'); assert false, 'T82 Admin darf keine Admins anlegen';
+    exception when raise_exception then null; end;
+    update profiles set phone = '0151 777' where id = anna;
+    assert (select phone from profiles where id = anna) = '0151 777', 'T83 Admin darf eigenes Telefon ändern';
+    begin update profiles set active = false where id = anna; assert false, 'T84 Admin darf sich nicht selbst deaktivieren';
+    exception when raise_exception then null; end;
+    insert into profiles (role, full_name) values ('recruiter', 'Test Neu-Recruiter');
+    begin update profiles set role = 'admin' where full_name = 'Test Neu-Recruiter'; assert false, 'T85 Admin darf niemanden zum Admin machen';
+    exception when raise_exception then null; end;
+    begin perform erase_profile((select id from profiles where auth_user_id = uid_admin::uuid), 'x'); assert false, 'T86 Admin darf den Inhaber nicht löschen';
+    exception when raise_exception then null; end;
+    perform pg_temp.act_as(uid_admin);
+    assert is_owner(), 'T87 Test-Admin ist Inhaber';
+    insert into profiles (role, full_name) values ('admin', 'Test Admin Zwei');
+    update profiles set active = false where id = anna;
+    assert not (select active from profiles where id = anna), 'T88 Inhaber darf Admins anlegen und deaktivieren';
+  end if;
+
   -- 7) Anonyme Besucher sehen nichts
   perform pg_temp.act_as(null);
   set local role anon;
